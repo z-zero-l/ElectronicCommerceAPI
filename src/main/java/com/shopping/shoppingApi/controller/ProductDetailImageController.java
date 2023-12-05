@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * 商品详情图片 控制层。
  *
- * @author 18851
+ * @author wg233
  * @since 2023-12-04
  */
 @RestController

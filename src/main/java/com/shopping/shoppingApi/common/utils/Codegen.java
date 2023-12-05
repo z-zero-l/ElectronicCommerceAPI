@@ -48,6 +48,10 @@ public class Codegen {
         updateTimeColumnConfig.setOnUpdateValue("now()");
         updateTimeColumnConfig.setLarge(true);
 
+        globalConfig.getJavadocConfig()
+                .setAuthor("wg233")
+                .setSince("2023-12-04");
+
         //设置根包
         globalConfig.getPackageConfig()
                 .setBasePackage("com.shopping.shoppingApi");
@@ -55,6 +59,7 @@ public class Codegen {
         //设置表前缀和只生成哪些表，setGenerateTable 未配置时，生成所有表
         globalConfig.getStrategyConfig()
                 .setTablePrefix("t_")
+                .setVersionColumn("stock")
                 .setColumnConfig(deleteFlagColumnConfig)
                 .setColumnConfig(createTimeColumnConfig)
                 .setColumnConfig(updateTimeColumnConfig);
@@ -74,8 +79,6 @@ public class Codegen {
         globalConfig.enableService();
 
         globalConfig.enableServiceImpl();
-        globalConfig.getServiceImplConfig()
-                .setCacheExample(true);
 
         globalConfig.enableController();
 

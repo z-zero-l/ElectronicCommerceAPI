@@ -6,7 +6,7 @@ import com.shopping.shoppingApi.entity.ProductCarouselImage;
 /**
  * 商品轮播图 服务层。
  *
- * @author 18851
+ * @author wg233
  * @since 2023-12-04
  */
 public interface ProductCarouselImageService extends IService<ProductCarouselImage> {

@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 /**
  * 商品规格 实体类。
  *
- * @author 18851
+ * @author wg233
  * @since 2023-12-04
  */
 @Accessors(chain = true)
@@ -59,6 +59,7 @@ public class ProductSpec extends Model<ProductSpec> {
     /**
      * 库存
      */
+    @Column(version = true)
     @Schema(description = "库存")
     private Integer stock;
 

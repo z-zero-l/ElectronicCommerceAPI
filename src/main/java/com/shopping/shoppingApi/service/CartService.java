@@ -6,7 +6,7 @@ import com.shopping.shoppingApi.entity.Cart;
 /**
  * 购物车 服务层。
  *
- * @author 18851
+ * @author wg233
  * @since 2023-12-04
  */
 public interface CartService extends IService<Cart> {

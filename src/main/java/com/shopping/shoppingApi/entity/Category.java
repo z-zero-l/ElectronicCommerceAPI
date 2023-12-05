@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 /**
  * 分类 实体类。
  *
- * @author 18851
+ * @author wg233
  * @since 2023-12-04
  */
 @Accessors(chain = true)

@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * 店铺信息表 控制层。
  *
- * @author 18851
+ * @author wg233
  * @since 2023-12-04
  */
 @RestController
