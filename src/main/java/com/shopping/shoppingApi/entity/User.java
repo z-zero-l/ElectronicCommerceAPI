@@ -1,16 +1,19 @@
 package com.shopping.shoppingApi.entity;
 
-import com.mybatisflex.annotation.Column;
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
+import com.mybatisflex.annotation.*;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
+
 import com.mybatisflex.core.activerecord.Model;
+import com.mybatisflex.core.mask.MaskManager;
+import com.mybatisflex.core.mask.Masks;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.ibatis.type.LocalDateTimeTypeHandler;
 
 /**
  * 用户信息表 实体类。
@@ -30,12 +33,13 @@ public class User extends Model<User> {
      */
     @Id(keyType = KeyType.Auto)
     @Schema(description = "主键")
-    private Long userId;
+    private Integer userId;
 
     /**
      * 用户名
      */
     @Schema(description = "用户名")
+    @ColumnMask(Masks.CHINESE_NAME)
     private String userName;
 
     /**
@@ -48,6 +52,7 @@ public class User extends Model<User> {
      * 密码
      */
     @Schema(description = "密码")
+    @ColumnMask(Masks.PASSWORD)
     private String password;
 
     /**
@@ -60,19 +65,22 @@ public class User extends Model<User> {
      * 邮箱
      */
     @Schema(description = "邮箱")
+    @ColumnMask(Masks.EMAIL)
     private String email;
 
     /**
      * 联系方式
      */
     @Schema(description = "联系方式")
+    @ColumnMask(Masks.FIXED_PHONE)
     private String phone;
 
     /**
      * 生日
      */
     @Schema(description = "生日")
-    private LocalDateTime birthday;
+    @Column(typeHandler = LocalDateTimeTypeHandler.class)
+    private Date birthday;
 
     /**
      * 个人简介

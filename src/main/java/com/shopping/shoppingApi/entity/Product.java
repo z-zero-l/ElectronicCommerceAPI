@@ -69,9 +69,9 @@ public class Product extends Model<Product> {
     private Double freight;
 
     /**
-     * 商品状态(0-待上架 1-已上架 2-已下架)
+     * 商品状态(1-已上架 2-已下架)
      */
-    @Schema(description = "商品状态(0-待上架 1-已上架 2-已下架)")
+    @Schema(description = "商品状态(1-已上架 2-已下架)")
     private Integer productStatus;
 
     /**
