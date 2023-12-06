@@ -19,6 +19,14 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  data:
+    redis:
+      database: ${REDIS_DATABASE}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+
 
 springdoc:
   swagger-ui:
@@ -34,7 +42,7 @@ knife4j:
   enable: true
   setting:
     language: zh-CN
-  production: ${KNIFE4J_PRODUCTION} #生产环境
+#  production: ${KNIFE4J_PRODUCTION} #生产环境
 
 mybatis-flex:
   mapper-locations: classpath:mapper/*.xml
