@@ -1,6 +1,11 @@
 package com.shopping.shoppingApi.controller;
 
 import com.mybatisflex.core.paginate.Page;
+import com.shopping.shoppingApi.common.result.RespBean;
+import com.shopping.shoppingApi.common.result.Result;
+import com.shopping.shoppingApi.query.UserLoginQuery;
+import com.shopping.shoppingApi.query.UserRegisterQuery;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +36,28 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    /**
+     * 注册
+     * @param user
+     * @return
+     */
+    @PostMapping("register")
+    @Operation(description="注册")
+    public ResponseEntity<RespBean> register(@RequestBody @Parameter(description="用户信息表") UserRegisterQuery user) {
+        return Result.ok(userService.register(user));
+    }
+
+    /**
+     * 登录
+     * @param user
+     * @return
+     */
+    @PostMapping("login")
+    @Operation(description="登录",tags = {"登录接口"},summary = "登录接口")
+    public ResponseEntity<RespBean> login(@RequestBody @Parameter(description="用户信息表") UserLoginQuery user) {
+        return Result.ok(userService.login(user));
+    }
 
     /**
      * 添加用户信息表。
