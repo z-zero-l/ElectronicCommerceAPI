@@ -124,4 +124,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new ServerException("用户不存在");
         }
     }
+
+    /**
+     * 获取用户头像
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public String getUserAvatar(Integer userId) {
+        if (super.exists(new QueryWrapper().eq("user_id", userId))) {
+            return (String) super.getObj(new QueryWrapper().select("avatar").eq("user_id", userId));
+        }else {
+            throw new ServerException("用户不存在");
+        }
+    }
 }

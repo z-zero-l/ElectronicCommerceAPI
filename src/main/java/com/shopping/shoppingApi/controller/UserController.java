@@ -66,12 +66,23 @@ public class UserController {
         return Result.ok(userService.login(user)).responseEntity();
     }
 
+    /**
+     * 获取用户信息
+     * @param request
+     * @return
+     */
     @GetMapping("/profile")
     @Operation(summary = "用户详情",description = "根据用户id获取用户信息")
     private ResponseEntity<Result<UserVO>> getUserInfo(HttpServletRequest request) {
         Integer userId = getUserId(request);
         UserVO userInfo = userService.getUserInfo(userId);
         return Result.ok(userInfo).responseEntity();
+    }
+
+    @GetMapping("/profile/avatar")
+    @Operation(summary = "获取用户头像",description = "根据用户id获取用户头像")
+    private ResponseEntity<Result<String>> getUserAvatar(HttpServletRequest request) {
+        return Result.ok(userService.getUserAvatar(getUserId(request))).responseEntity();
     }
 
     /**

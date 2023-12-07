@@ -35,4 +35,11 @@ public interface UserService extends IService<User> {
      * @return
      */
     UserVO getUserInfo(Integer userId);
+
+    /**
+     * 获取用户头像
+     * @param userId
+     * @return
+     */
+    String getUserAvatar(Integer userId);
 }
