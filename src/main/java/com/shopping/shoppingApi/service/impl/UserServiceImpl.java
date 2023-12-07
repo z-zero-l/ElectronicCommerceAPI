@@ -2,9 +2,14 @@ package com.shopping.shoppingApi.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.SmUtil;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.mybatisflex.core.mask.MaskManager;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
+import com.shopping.shoppingApi.common.utils.AliyunResource;
+import com.shopping.shoppingApi.common.utils.FileResource;
 import com.shopping.shoppingApi.common.utils.JWTUtils;
 import com.shopping.shoppingApi.constant.APIConstant;
 import com.shopping.shoppingApi.entity.User;
@@ -16,8 +21,13 @@ import com.shopping.shoppingApi.service.UserService;
 import com.shopping.shoppingApi.vo.LoginResultVO;
 import com.shopping.shoppingApi.vo.UserTokenVO;
 import com.shopping.shoppingApi.vo.UserVO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.UUID;
 
 import static com.shopping.shoppingApi.constant.APIConstant.*;
 
@@ -28,10 +38,12 @@ import static com.shopping.shoppingApi.constant.APIConstant.*;
  * @since 2023-12-04
  */
 @Service
+@AllArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+    private final RedisService redisService;
+    private final AliyunResource aliyunResource;
+    private final FileResource fileResource;
 
-    @Autowired
-    private RedisService redisService;
 
     /**
      * 注册
@@ -107,9 +119,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public UserVO getUserInfo(Integer userId) {
-        User user = super.getById(userId);
+        User user;
+        try {
+            MaskManager.skipMask();
+            //此处查询到的数据不会进行脱敏处理
+            user = super.getById(userId);
+        } finally {
+            MaskManager.restoreMask();
+        }
+
         if (user != null) {
-            UserVO userVO = new UserVO();
+            UserVO userVO = UserVO.create();
             userVO.setUserName(user.getUserName());
             userVO.setAccount(user.getAccount());
             userVO.setEmail(user.getEmail());
@@ -135,8 +155,72 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public String getUserAvatar(Integer userId) {
         if (super.exists(new QueryWrapper().eq("user_id", userId))) {
             return (String) super.getObj(new QueryWrapper().select("avatar").eq("user_id", userId));
-        }else {
+        } else {
             throw new ServerException("用户不存在");
         }
+    }
+
+    @Override
+    public UserVO editUserInfo(Integer userId, UserVO userVO) {
+        if (!exists(new QueryWrapper().eq("user_id", userId))) {
+            throw new ServerException("用户不存在");
+        }
+        User user = User.create().setUserId(userId);
+        if (userVO.getUserName() != null) {
+            user.setUserName(userVO.getUserName());
+        }
+        if (userVO.getAccount() != null) {
+            user.setAccount(userVO.getAccount());
+        }
+        if (userVO.getGender() != null) {
+            user.setGender(userVO.getGender());
+        }
+        if (userVO.getEmail() != null) {
+            user.setEmail(userVO.getEmail());
+        }
+        if (userVO.getPhone() != null) {
+            user.setPhone(userVO.getPhone());
+        }
+        if (user.getBirthday() != null) {
+            user.setBirthday(userVO.getBirthday());
+        }
+        if (userVO.getProfile() != null) {
+            user.setProfile(userVO.getProfile());
+        }
+        if (userVO.getProvinceCode() != null && userVO.getCityCode() != null && userVO.getDistrictCode() != null) {
+            user.setProvinceCode(userVO.getProvinceCode()).setCityCode(userVO.getCityCode()).setDistrictCode(userVO.getDistrictCode());
+        }
+        updateById(user);
+        return userVO;
+    }
+
+    @Override
+    public String editUserAvatar(Integer userId, MultipartFile file) {
+        if (exists(new QueryWrapper().eq("user_id", userId))) {
+            throw new ServerException("用户不存在");
+        }
+        String endpoint = fileResource.getEndpoint();
+        String accessKeyId = aliyunResource.getAccessKeyId();
+        String accessKeySecret = aliyunResource.getAccessKeySecret();
+
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        String filename = file.getOriginalFilename();
+        assert filename != null;
+        String[] fileNameArr = filename.split("\\.");
+        String suffix = fileNameArr[fileNameArr.length - 1];
+        String uploadFileName = fileResource.getObjectName() + UUID.randomUUID() + "." + suffix;
+        InputStream inputStream = null;
+        try {
+            inputStream = file.getInputStream();
+        } catch (IOException e) {
+            throw new ServerException("文件上传失败");
+        }
+        ossClient.putObject(fileResource.getBucketName(), uploadFileName, inputStream);
+        ossClient.shutdown();
+        User user = User.create().setUserId(userId);
+        uploadFileName = fileResource.getOssHost() + uploadFileName;
+        user.setAvatar(uploadFileName);
+        updateById(user);
+        return uploadFileName;
     }
 }

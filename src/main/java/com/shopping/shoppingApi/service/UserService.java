@@ -6,6 +6,7 @@ import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.vo.LoginResultVO;
 import com.shopping.shoppingApi.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 用户信息表 服务层。
@@ -42,4 +43,19 @@ public interface UserService extends IService<User> {
      * @return
      */
     String getUserAvatar(Integer userId);
+
+    /**
+     * 编辑用户信息
+     * @param userVO
+     * @return
+     */
+    UserVO editUserInfo(Integer userId,UserVO userVO);
+
+    /**
+     * 编辑用户头像
+     * @param userId
+     * @param file
+     * @return
+     */
+    String editUserAvatar(Integer userId, MultipartFile file);
 }

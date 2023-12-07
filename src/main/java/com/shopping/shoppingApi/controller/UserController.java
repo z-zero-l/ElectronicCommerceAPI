@@ -2,26 +2,21 @@ package com.shopping.shoppingApi.controller;
 
 import com.mybatisflex.core.paginate.Page;
 import com.shopping.shoppingApi.common.result.Result;
+import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
+import com.shopping.shoppingApi.service.UserService;
 import com.shopping.shoppingApi.vo.LoginResultVO;
 import com.shopping.shoppingApi.vo.UserVO;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.shopping.shoppingApi.entity.User;
-import com.shopping.shoppingApi.service.UserService;
-import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.util.List;
@@ -49,7 +44,7 @@ public class UserController {
      * @return
      */
     @PostMapping("register")
-    @Operation(summary = "注册接口",description = "注册接口")
+    @Operation(summary = "注册接口", description = "注册接口")
     public ResponseEntity<Result<Integer>> register(@RequestBody @Parameter(description = "用户信息表") UserRegisterQuery user) {
         return Result.ok(userService.register(user)).responseEntity();
     }
@@ -61,28 +56,62 @@ public class UserController {
      * @return
      */
     @PostMapping("login")
-    @Operation(summary = "登录接口",description = "登录接口")
+    @Operation(summary = "登录接口", description = "登录接口")
     public ResponseEntity<Result<LoginResultVO>> login(@RequestBody @Parameter(description = "用户信息表") UserLoginQuery user) {
         return Result.ok(userService.login(user)).responseEntity();
     }
 
     /**
      * 获取用户信息
+     *
      * @param request
      * @return
      */
     @GetMapping("/profile")
-    @Operation(summary = "用户详情",description = "根据用户id获取用户信息")
+    @Operation(summary = "用户详情", description = "根据用户id获取用户信息")
     private ResponseEntity<Result<UserVO>> getUserInfo(HttpServletRequest request) {
         Integer userId = getUserId(request);
         UserVO userInfo = userService.getUserInfo(userId);
         return Result.ok(userInfo).responseEntity();
     }
 
+    /**
+     * 获取用户头像
+     * @param request
+     * @return
+     */
     @GetMapping("/profile/avatar")
-    @Operation(summary = "获取用户头像",description = "根据用户id获取用户头像")
+    @Operation(summary = "获取用户头像", description = "根据用户id获取用户头像")
     private ResponseEntity<Result<String>> getUserAvatar(HttpServletRequest request) {
         return Result.ok(userService.getUserAvatar(getUserId(request))).responseEntity();
+    }
+
+    /**
+     * 修改用户信息
+     * @param request
+     * @param userVO
+     * @return
+     */
+    @Operation(summary = "修改用户信息")
+    @PutMapping("/profile")
+    private Result<UserVO> editUserInfo(HttpServletRequest request, @RequestBody @Validated UserVO userVO) {
+        Integer userId = getUserId(request);
+        UserVO userInfo = userService.editUserInfo(userId,userVO);
+        return Result.ok(userInfo);
+    }
+
+    /**
+     *  修改用户头像
+     * @param request
+     * @param file
+     * @return
+     */
+    @Operation(summary = "修改用户头像")
+    @PostMapping("/profile/avatar")
+    private Result<String> editUserAvatar(HttpServletRequest request, MultipartFile file) {
+        Integer userId = getUserId(request);
+        String uploadFileName = userService.editUserAvatar(userId, file);
+        return Result.ok(uploadFileName);
     }
 
     /**
