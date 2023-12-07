@@ -2,12 +2,13 @@ package com.shopping.shoppingApi.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
-@Data
+@Accessors(chain = true)
+@Data(staticConstructor = "create")
 public class UserVO {
     @Schema(description = "登录token")
     private String token;
