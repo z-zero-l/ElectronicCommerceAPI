@@ -5,6 +5,7 @@ import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.vo.LoginResultVO;
+import com.shopping.shoppingApi.vo.UserVO;
 
 /**
  * 用户信息表 服务层。
@@ -27,4 +28,11 @@ public interface UserService extends IService<User> {
      * @return
      */
     LoginResultVO login(UserLoginQuery userLoginQuery);
+
+    /**
+     * 获取用户信息
+     * @param userId
+     * @return
+     */
+    UserVO getUserInfo(Long userId);
 }

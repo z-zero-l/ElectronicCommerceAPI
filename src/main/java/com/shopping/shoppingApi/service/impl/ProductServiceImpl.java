@@ -4,6 +4,7 @@ import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.entity.Product;
 import com.shopping.shoppingApi.mapper.ProductMapper;
 import com.shopping.shoppingApi.service.ProductService;
+import com.shopping.shoppingApi.vo.ProductVO;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,4 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements ProductService {
 
+    @Override
+    public ProductVO getProductDetail(Integer productId) {
+        return null;
+    }
 }

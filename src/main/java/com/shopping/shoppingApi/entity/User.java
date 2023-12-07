@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.ibatis.type.LocalDateTimeTypeHandler;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 用户信息表 实体类。
@@ -79,8 +80,7 @@ public class User extends Model<User> {
      * 生日
      */
     @Schema(description = "生日")
-    @Column(typeHandler = LocalDateTimeTypeHandler.class)
-    private Date birthday;
+    private LocalDateTime birthday;
 
     /**
      * 个人简介

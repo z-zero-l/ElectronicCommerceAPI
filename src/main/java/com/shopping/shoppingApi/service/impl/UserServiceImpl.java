@@ -15,11 +15,11 @@ import com.shopping.shoppingApi.service.RedisService;
 import com.shopping.shoppingApi.service.UserService;
 import com.shopping.shoppingApi.vo.LoginResultVO;
 import com.shopping.shoppingApi.vo.UserTokenVO;
+import com.shopping.shoppingApi.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static com.shopping.shoppingApi.constant.APIConstant.*;
-import static com.shopping.shoppingApi.entity.table.UserTableDef.USER;
 
 /**
  * 用户信息表 服务层实现。
@@ -77,6 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 登录
+     *
      * @param userLoginQuery
      * @return
      */
@@ -89,19 +90,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new ServerException("账号或密码错误");
         }
-        System.err.println(user);
         LoginResultVO userVO = new LoginResultVO();
-        userVO.setId(user.getUserId());
-        userVO.setMobile(user.getPhone());
         userVO.setAvatar(user.getAvatar());
-        userVO.setAccount(user.getAccount());
-        UserTokenVO tokenVO = new UserTokenVO(userVO.getId());
+        UserTokenVO tokenVO = new UserTokenVO(user.getUserId());
         // 生成token
         String token = JWTUtils.generateToken(JWT_SECRET, tokenVO.toMap());
         // 保存token
-        redisService.set(APP_NAME+userVO.getId(), token, TOKEN_EXPIRE_TIME);
+        redisService.set(APP_NAME + user.getUserId(), token, TOKEN_EXPIRE_TIME);
         userVO.setToken(token);
         return userVO;
 
+    }
+
+    /**
+     * 获取用户信息
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public UserVO getUserInfo(Long userId) {
+        User user = userMapper.selectOneById(userId);
+        if (user != null) {
+            UserVO userVO = new UserVO();
+            userVO.setUserName(user.getUserName());
+            userVO.setAccount(user.getAccount());
+            userVO.setEmail(user.getEmail());
+            userVO.setPhone(user.getPhone());
+            userVO.setGender(user.getGender());
+            userVO.setProfile(user.getProfile());
+            userVO.setAvatar(user.getAvatar());
+            userVO.setBirthday(user.getBirthday());
+            userVO.setRegisterDays(user.getCreateTime().toLocalDate().until(user.getUpdateTime().toLocalDate()).getDays());
+            return userVO;
+        } else {
+            throw new ServerException("用户不存在");
+        }
     }
 }

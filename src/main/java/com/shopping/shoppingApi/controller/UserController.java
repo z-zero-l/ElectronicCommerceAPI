@@ -1,10 +1,12 @@
 package com.shopping.shoppingApi.controller;
 
 import com.mybatisflex.core.paginate.Page;
-import com.shopping.shoppingApi.common.result.RespBean;
 import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
+import com.shopping.shoppingApi.vo.LoginResultVO;
+import com.shopping.shoppingApi.vo.UserVO;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import java.io.Serializable;
 import java.util.List;
+
+import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
 
 /**
  * 用户信息表 控制层。
@@ -45,9 +49,9 @@ public class UserController {
      * @return
      */
     @PostMapping("register")
-    @Operation(description = "注册", summary = "注册接口")
-    public ResponseEntity<RespBean> register(@RequestBody @Parameter(description = "用户信息表") UserRegisterQuery user) {
-        return Result.ok(userService.register(user));
+    @Operation(summary = "注册接口",description = "注册接口")
+    public ResponseEntity<Result<Integer>> register(@RequestBody @Parameter(description = "用户信息表") UserRegisterQuery user) {
+        return Result.ok(userService.register(user)).responseEntity();
     }
 
     /**
@@ -57,9 +61,17 @@ public class UserController {
      * @return
      */
     @PostMapping("login")
-    @Operation(description = "登录", summary = "登录接口")
-    public ResponseEntity<RespBean> login(@RequestBody @Parameter(description = "用户信息表") UserLoginQuery user) {
-        return Result.ok(userService.login(user));
+    @Operation(summary = "登录接口",description = "登录接口")
+    public ResponseEntity<Result<LoginResultVO>> login(@RequestBody @Parameter(description = "用户信息表") UserLoginQuery user) {
+        return Result.ok(userService.login(user)).responseEntity();
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "用户详情",description = "根据用户id获取用户信息")
+    private ResponseEntity<Result<UserVO>> getUserInfo(HttpServletRequest request) {
+        Long userId = getUserId(request);
+        UserVO userInfo = userService.getUserInfo(userId);
+        return Result.ok(userInfo).responseEntity();
     }
 
     /**
