@@ -1,6 +1,5 @@
 package com.shopping.shoppingApi.common.exception;
 
-import com.shopping.shoppingApi.common.result.RespBean;
 import com.shopping.shoppingApi.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,8 @@ public class ServerExceptionHandler {
      * @return
      */
     @ExceptionHandler(ServerException.class)
-    public ResponseEntity<RespBean> handleException(ServerException exception) {
-        return Result.error(exception.getCode(), exception.getMsg());
+    public ResponseEntity<Result<Object>> handleException(ServerException exception) {
+        return Result.error(exception.getCode(), exception.getMsg()).responseEntity();
     }
 
     /**
@@ -31,10 +30,10 @@ public class ServerExceptionHandler {
      * @return
      */
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<RespBean> bindException(BindException exception) {
+    public ResponseEntity<Result<Object>> bindException(BindException exception) {
         FieldError fieldError = exception.getFieldError();
         assert fieldError != null;
-        return Result.error(fieldError.getDefaultMessage());
+        return Result.error(fieldError.getDefaultMessage()).responseEntity();
     }
 
     /**
@@ -44,8 +43,8 @@ public class ServerExceptionHandler {
      * @return
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RespBean> handleException(Exception exception) {
+    public ResponseEntity<Result<Object>> handleException(Exception exception) {
         log.error(exception.getMessage(), exception);
-        return Result.error(ErrorCode.INTERNAL_SERVER_ERROR);
+        return Result.error(ErrorCode.INTERNAL_SERVER_ERROR).responseEntity();
     }
 }

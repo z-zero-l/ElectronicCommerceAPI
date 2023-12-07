@@ -5,11 +5,11 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class ObtainUserIdUtils {
 
-    public static Integer getUserId(HttpServletRequest request) {
+    public static Long getUserId(HttpServletRequest request) {
         if (request.getAttribute("userId") == null) {
             throw new ServerException("用户不存在");
         }
-        Integer userId = Integer.parseInt(request.getAttribute("userId").toString());
+        Long userId = Long.parseLong(request.getAttribute("userId").toString());
         if (userId == null) {
             throw new ServerException("用户不存在");
         }
