@@ -1,5 +1,6 @@
 package com.shopping.shoppingApi.common.interceptor;
 
+import com.shopping.shoppingApi.common.exception.ErrorCode;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.common.utils.JWTUtils;
 import com.shopping.shoppingApi.constant.APIConstant;
@@ -23,14 +24,14 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         String authorization = request.getHeader(APIConstant.AUTHORIZATION);
 
         if (authorization == null) {
-            throw new ServerException("access denied");
+            throw new ServerException(ErrorCode.UNAUTHORIZED);
         }
 
 //        如果token存在，需要验证token的真伪，如果 token 是真的，对 token 解析，获取用户id
         Map map = JWTUtils.getClaims(APIConstant.JWT_SECRET, authorization);
 
         if (map == null) {
-            throw new ServerException("access denied");
+            throw new ServerException(ErrorCode.UNAUTHORIZED);
         } else {
             String userId = map.get("userId").toString();
             request.setAttribute("userId", userId);
@@ -46,7 +47,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             if (originToken != null && originToken.equals(authorization)) {
                 return true;
             } else {
-                throw new ServerException("token expire");
+                throw new ServerException(ErrorCode.UNAUTHORIZED);
             }
         }
         return true;
