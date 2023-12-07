@@ -69,7 +69,7 @@ public class UserController {
     @GetMapping("/profile")
     @Operation(summary = "用户详情",description = "根据用户id获取用户信息")
     private ResponseEntity<Result<UserVO>> getUserInfo(HttpServletRequest request) {
-        Long userId = getUserId(request);
+        Integer userId = getUserId(request);
         UserVO userInfo = userService.getUserInfo(userId);
         return Result.ok(userInfo).responseEntity();
     }

@@ -31,9 +31,6 @@ import static com.shopping.shoppingApi.constant.APIConstant.*;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     private RedisService redisService;
 
     /**
@@ -86,7 +83,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 加密密码
         String password = SmUtil.sm3(PASSWORD_SALT + userLoginQuery.getPassword());
         // 查询用户
-        User user = userMapper.selectOneByQuery(QueryWrapper.create().eq("account", userLoginQuery.getAccount()).eq("password", password));
+        User user = super.getOne(QueryWrapper.create().eq("account", userLoginQuery.getAccount()).eq("password", password));
         if (user == null) {
             throw new ServerException("账号或密码错误");
         }
@@ -109,8 +106,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public UserVO getUserInfo(Long userId) {
-        User user = userMapper.selectOneById(userId);
+    public UserVO getUserInfo(Integer userId) {
+        User user = super.getById(userId);
         if (user != null) {
             UserVO userVO = new UserVO();
             userVO.setUserName(user.getUserName());

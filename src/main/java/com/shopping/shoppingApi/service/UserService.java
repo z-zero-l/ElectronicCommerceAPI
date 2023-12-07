@@ -34,5 +34,5 @@ public interface UserService extends IService<User> {
      * @param userId
      * @return
      */
-    UserVO getUserInfo(Long userId);
+    UserVO getUserInfo(Integer userId);
 }
