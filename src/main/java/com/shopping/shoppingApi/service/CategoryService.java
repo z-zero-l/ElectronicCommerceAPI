@@ -5,7 +5,6 @@ import com.shopping.shoppingApi.entity.Category;
 import com.shopping.shoppingApi.vo.CategoryChildVO;
 import com.shopping.shoppingApi.vo.CategoryVO;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,11 +15,12 @@ import java.util.List;
  */
 public interface CategoryService extends IService<Category> {
     /**
-     *  获取所有分类列表。
+     * 获取所有分类列表。
      *
      * @return 所有分类列表。
      */
     List<CategoryVO> getCategoryList();
+
     /**
      * 获取一级分类列表。
      *
@@ -29,7 +29,8 @@ public interface CategoryService extends IService<Category> {
     List<CategoryVO> getParentCategoryList();
 
     /**
-     *  获取子分类列表。
+     * 获取子分类列表。
+     *
      * @param parentId 父分类id。
      * @return 子分类列表。
      */

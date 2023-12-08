@@ -58,9 +58,9 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
         ArrayList<CategoryVO> categoryVOS = new ArrayList<>();
         for (Category category : list) {
             categoryVOS.add(CategoryVO.create()
-                   .setCategoryId(category.getCategoryId())
-                   .setCateName(category.getCateName())
-                   .setCateIcon(category.getCateIcon())
+                    .setCategoryId(category.getCategoryId())
+                    .setCateName(category.getCateName())
+                    .setCateIcon(category.getCateIcon())
                     .setCateColor(category.getCateColor()));
         }
         return categoryVOS;
@@ -85,10 +85,10 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
         List<CategoryChildVO> categoryVOS = new ArrayList<>();
         for (Category category : list) {
             categoryVOS.add(CategoryChildVO.create()
-                   .setCategoryId(category.getCategoryId())
-                   .setCateName(category.getCateName())
-                   .setCateIcon(category.getCateIcon())
-                   .setCateColor(category.getCateColor()));
+                    .setCategoryId(category.getCategoryId())
+                    .setCateName(category.getCateName())
+                    .setCateIcon(category.getCateIcon())
+                    .setCateColor(category.getCateColor()));
         }
         return categoryVOS;
     }
