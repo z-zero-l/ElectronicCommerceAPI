@@ -9,14 +9,14 @@ import org.springframework.http.ResponseEntity;
 @Data
 @Schema(description = "响应数据")
 public class Result<T> {
-    @Schema(description = "编码 0 表示成功，其他值表示失败")
+    @Schema(description = "编码 200 表示成功，其他值表示失败")
     private int code = 200;
 
     @Schema(description = "消息内容")
     private String msg = "success";
 
     @Schema(description = "响应数据")
-    private T result;
+    private T data;
 
     public static <T> Result<T> ok() {
         return ok(null);
@@ -25,7 +25,7 @@ public class Result<T> {
 
     public static <T> Result<T> ok(T data) {
         Result<T> result = new Result<>();
-        result.setResult(data);
+        result.setData(data);
         return result;
     }
 
