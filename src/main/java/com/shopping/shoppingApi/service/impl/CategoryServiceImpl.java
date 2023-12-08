@@ -1,13 +1,15 @@
 package com.shopping.shoppingApi.service.impl;
 
 import com.mybatisflex.core.query.QueryWrapper;
-import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.mybatisflex.spring.service.impl.CacheableServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Category;
 import com.shopping.shoppingApi.mapper.CategoryMapper;
 import com.shopping.shoppingApi.service.CategoryService;
 import com.shopping.shoppingApi.vo.CategoryChildVO;
 import com.shopping.shoppingApi.vo.CategoryVO;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,7 +22,8 @@ import java.util.List;
  * @since 2023-12-04
  */
 @Service
-public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
+@CacheConfig(cacheNames = "category")
+public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Category> implements CategoryService {
 
     /**
      * 获取所有分类列表。
@@ -28,6 +31,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      * @return 所有分类列表。
      */
     @Override
+    @Cacheable(key = "#root.methodName")
     public List<CategoryVO> getCategoryList() {
         List<Category> list = super.list(new QueryWrapper().eq("parent_id", 0));
         ArrayList<CategoryVO> categoryVOS = new ArrayList<>();
@@ -48,6 +52,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      * @return 一级分类列表。
      */
     @Override
+    @Cacheable(key = "#root.methodName")
     public List<CategoryVO> getParentCategoryList() {
         List<Category> list = super.list(new QueryWrapper().eq("parent_id", 0));
         ArrayList<CategoryVO> categoryVOS = new ArrayList<>();
@@ -68,6 +73,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      * @return 子分类列表。
      */
     @Override
+    @Cacheable(key = "#root.methodName + ':' + #parentId")
     public List<CategoryChildVO> getChildCategoryList(Integer parentId) {
         if (parentId == null) {
             throw new ServerException("父分类id不能为空");

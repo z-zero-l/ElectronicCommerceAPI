@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 @Accessors(chain = true)
 @Data(staticConstructor = "create")
-public class CategoryChildVO {
+public class CategoryChildVO implements Serializable {
     @Schema(description = "主键")
     private Integer categoryId;
     @Schema(description = "分类名称")
