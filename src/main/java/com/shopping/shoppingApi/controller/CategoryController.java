@@ -9,7 +9,7 @@ import com.shopping.shoppingApi.vo.CategoryVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +25,8 @@ import java.util.List;
 @RestController
 @Tag(name = "分类模块")
 @RequestMapping("/category")
+@AllArgsConstructor
 public class CategoryController {
-
-    @Autowired
     private CategoryService categoryService;
 
     /**
@@ -36,23 +35,24 @@ public class CategoryController {
      * @return 所有分类
      */
     @GetMapping("list")
-    @Operation(summary = "分类列表",description = "查看所有分类列表")
+    @Operation(summary = "分类列表", description = "查看所有分类列表")
     public ResponseEntity<Result<List<CategoryVO>>> getCategoryList() {
         return Result.ok(categoryService.getCategoryList()).responseEntity();
     }
 
     /**
-     *  一级分类列表。
+     * 一级分类列表。
+     *
      * @return 一级分类列表
      */
     @GetMapping("list/first")
-    @Operation(summary = "一级分类",description = "查看一级分类列表")
+    @Operation(summary = "一级分类", description = "查看一级分类列表")
     public ResponseEntity<Result<List<CategoryVO>>> listFirst() {
         return Result.ok(categoryService.getParentCategoryList()).responseEntity();
     }
 
     @GetMapping("list/second/{parentId}")
-    @Operation(summary = "二级分类",description = "查看二级分类列表")
+    @Operation(summary = "二级分类", description = "查看二级分类列表")
     public ResponseEntity<Result<List<CategoryChildVO>>> listSecond(@PathVariable @Parameter(description = "父级分类id") Integer parentId) {
         return Result.ok(categoryService.getChildCategoryList(parentId)).responseEntity();
     }

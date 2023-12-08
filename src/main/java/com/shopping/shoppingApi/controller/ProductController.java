@@ -15,6 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -27,11 +33,12 @@ import java.util.List;
 @RestController
 @Tag(name = "商品表接口")
 @RequestMapping("/product")
+@AllArgsConstructor
 public class ProductController {
-
-    @Autowired
     private ProductService productService;
 
+    @Resource
+    private HttpServletRequest request;
     /**
      * 添加商品表。
      *
@@ -39,8 +46,8 @@ public class ProductController {
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("save")
-    @Operation(description="保存商品表")
-    public boolean save(@RequestBody @Parameter(description="商品表")Product product) {
+    @Operation(description = "保存商品表")
+    public boolean save(@RequestBody @Parameter(description = "商品表") Product product) {
         return productService.save(product);
     }
 
@@ -51,8 +58,8 @@ public class ProductController {
      * @return {@code true} 删除成功，{@code false} 删除失败
      */
     @DeleteMapping("remove/{id}")
-    @Operation(description="根据主键商品表")
-    public boolean remove(@PathVariable @Parameter(description="商品表主键")Serializable id) {
+    @Operation(description = "根据主键商品表")
+    public boolean remove(@PathVariable @Parameter(description = "商品表主键") Serializable id) {
         return productService.removeById(id);
     }
 
@@ -63,8 +70,8 @@ public class ProductController {
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
     @PutMapping("update")
-    @Operation(description="根据主键更新商品表")
-    public boolean update(@RequestBody @Parameter(description="商品表主键")Product product) {
+    @Operation(description = "根据主键更新商品表")
+    public boolean update(@RequestBody @Parameter(description = "商品表主键") Product product) {
         return productService.updateById(product);
     }
 
@@ -74,7 +81,7 @@ public class ProductController {
      * @return 所有数据
      */
     @GetMapping("list")
-    @Operation(description="查询所有商品表")
+    @Operation(description = "查询所有商品表")
     public List<Product> list() {
         return productService.list();
     }
@@ -98,8 +105,8 @@ public class ProductController {
      * @return 分页对象
      */
     @GetMapping("page")
-    @Operation(description="分页查询商品表")
-    public Page<Product> page(@Parameter(description="分页信息")Page<Product> page) {
+    @Operation(description = "分页查询商品表")
+    public Page<Product> page(@Parameter(description = "分页信息") Page<Product> page) {
         return productService.page(page);
     }
 

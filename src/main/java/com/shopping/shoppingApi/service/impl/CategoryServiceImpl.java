@@ -38,9 +38,9 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
         for (Category category : list) {
             categoryVOS.add(CategoryVO.create()
                     .setCategoryId(category.getCategoryId())
-                   .setCateName(category.getCateName())
-                   .setCateIcon(category.getCateIcon())
-                   .setCateColor(category.getCateColor())
+                    .setCateName(category.getCateName())
+                    .setCateIcon(category.getCateIcon())
+                    .setCateColor(category.getCateColor())
                     .setChildCate(getChildCategoryList(category.getCategoryId())));
         }
         return categoryVOS;

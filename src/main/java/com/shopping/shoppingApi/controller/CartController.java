@@ -1,20 +1,14 @@
 package com.shopping.shoppingApi.controller;
 
 import com.mybatisflex.core.paginate.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.shopping.shoppingApi.entity.Cart;
 import com.shopping.shoppingApi.service.CartService;
-import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -27,9 +21,8 @@ import java.util.List;
 @RestController
 @Tag(name = "购物车接口")
 @RequestMapping("/cart")
+@AllArgsConstructor
 public class CartController {
-
-    @Autowired
     private CartService cartService;
 
     /**
@@ -39,8 +32,8 @@ public class CartController {
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("save")
-    @Operation(description="保存购物车")
-    public boolean save(@RequestBody @Parameter(description="购物车")Cart cart) {
+    @Operation(description = "保存购物车")
+    public boolean save(@RequestBody @Parameter(description = "购物车") Cart cart) {
         return cartService.save(cart);
     }
 
@@ -51,8 +44,8 @@ public class CartController {
      * @return {@code true} 删除成功，{@code false} 删除失败
      */
     @DeleteMapping("remove/{id}")
-    @Operation(description="根据主键购物车")
-    public boolean remove(@PathVariable @Parameter(description="购物车主键")Serializable id) {
+    @Operation(description = "根据主键购物车")
+    public boolean remove(@PathVariable @Parameter(description = "购物车主键") Serializable id) {
         return cartService.removeById(id);
     }
 
@@ -63,8 +56,8 @@ public class CartController {
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
     @PutMapping("update")
-    @Operation(description="根据主键更新购物车")
-    public boolean update(@RequestBody @Parameter(description="购物车主键")Cart cart) {
+    @Operation(description = "根据主键更新购物车")
+    public boolean update(@RequestBody @Parameter(description = "购物车主键") Cart cart) {
         return cartService.updateById(cart);
     }
 
@@ -74,7 +67,7 @@ public class CartController {
      * @return 所有数据
      */
     @GetMapping("list")
-    @Operation(description="查询所有购物车")
+    @Operation(description = "查询所有购物车")
     public List<Cart> list() {
         return cartService.list();
     }
@@ -86,7 +79,7 @@ public class CartController {
      * @return 购物车详情
      */
     @GetMapping("getInfo/{id}")
-    @Operation(description="根据主键获取购物车")
+    @Operation(description = "根据主键获取购物车")
     public Cart getInfo(@PathVariable Serializable id) {
         return cartService.getById(id);
     }
@@ -98,8 +91,8 @@ public class CartController {
      * @return 分页对象
      */
     @GetMapping("page")
-    @Operation(description="分页查询购物车")
-    public Page<Cart> page(@Parameter(description="分页信息")Page<Cart> page) {
+    @Operation(description = "分页查询购物车")
+    public Page<Cart> page(@Parameter(description = "分页信息") Page<Cart> page) {
         return cartService.page(page);
     }
 
