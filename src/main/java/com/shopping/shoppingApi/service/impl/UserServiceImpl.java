@@ -1,5 +1,6 @@
 package com.shopping.shoppingApi.service.impl;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.SmUtil;
 import com.aliyun.oss.OSS;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static com.shopping.shoppingApi.constant.APIConstant.*;
@@ -44,15 +46,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final AliyunResource aliyunResource;
     private final FileResource fileResource;
 
-
     /**
      * 注册
      *
-     * @param userRegisterQuery
-     * @return
+     * @param userRegisterQuery 用户注册信息
      */
     @Override
-    public Integer register(UserRegisterQuery userRegisterQuery) {
+    public Void register(UserRegisterQuery userRegisterQuery) {
         System.out.println(userRegisterQuery);
         if (userRegisterQuery != null) {
             User user = User.create();
@@ -79,7 +79,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setUserName("用户" + RandomUtil.randomNumbers(5));
             user.setAvatar(APIConstant.DEFAULT_AVATAR);
             super.save(user);
-            return user.getUserId();
         }
         return null;
     }
@@ -87,8 +86,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 登录
      *
-     * @param userLoginQuery
-     * @return
+     * @param userLoginQuery 用户登录信息
+     * @return 用户授权和头像信息
      */
     @Override
     public LoginResultVO login(UserLoginQuery userLoginQuery) {
@@ -114,8 +113,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 获取用户信息
      *
-     * @param userId
-     * @return
+     * @param userId 用户ID
+     * @return 用户信息
      */
     @Override
     public UserVO getUserInfo(Integer userId) {
@@ -137,7 +136,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userVO.setGender(user.getGender());
             userVO.setProfile(user.getProfile());
             userVO.setAvatar(user.getAvatar());
-            userVO.setBirthday(user.getBirthday());
+            userVO.setBirthday(LocalDateTimeUtil.format(user.getBirthday(), DateTimeFormatter.ISO_LOCAL_DATE));
             userVO.setRegisterDays(user.getCreateTime().toLocalDate().until(user.getUpdateTime().toLocalDate()).getDays());
             return userVO;
         } else {
@@ -148,8 +147,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 获取用户头像
      *
-     * @param userId
-     * @return
+     * @param userId 用户ID
+     * @return 用户头像地址
      */
     @Override
     public String getUserAvatar(Integer userId) {
@@ -160,6 +159,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 编辑用户信息
+     *
+     * @param userVO 用户信息
+     * @return 用户信息
+     */
     @Override
     public UserVO editUserInfo(Integer userId, UserVO userVO) {
         if (!exists(new QueryWrapper().eq("user_id", userId))) {
@@ -182,7 +187,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setPhone(userVO.getPhone());
         }
         if (user.getBirthday() != null) {
-            user.setBirthday(userVO.getBirthday());
+            user.setBirthday(LocalDateTimeUtil.parse(userVO.getBirthday()));
         }
         if (userVO.getProfile() != null) {
             user.setProfile(userVO.getProfile());
@@ -194,6 +199,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userVO;
     }
 
+    /**
+     * 编辑用户头像
+     *
+     * @param userId 用户ID
+     * @param file   头像文件
+     * @return 用户头像地址
+     */
     @Override
     public String editUserAvatar(Integer userId, MultipartFile file) {
         if (exists(new QueryWrapper().eq("user_id", userId))) {
@@ -209,7 +221,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String[] fileNameArr = filename.split("\\.");
         String suffix = fileNameArr[fileNameArr.length - 1];
         String uploadFileName = fileResource.getObjectName() + UUID.randomUUID() + "." + suffix;
-        InputStream inputStream = null;
+        InputStream inputStream;
         try {
             inputStream = file.getInputStream();
         } catch (IOException e) {

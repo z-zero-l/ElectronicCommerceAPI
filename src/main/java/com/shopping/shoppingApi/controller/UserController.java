@@ -11,8 +11,9 @@ import com.shopping.shoppingApi.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,28 +33,30 @@ import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
 @RestController
 @Tag(name = "用户模块")
 @RequestMapping("/user")
+@AllArgsConstructor
 public class UserController {
-
-    @Autowired
     private UserService userService;
+
+    @Resource
+    private HttpServletRequest request;
 
     /**
      * 注册
      *
-     * @param user
-     * @return
+     * @param user 用户注册信息
+     * @return 用户id
      */
     @PostMapping("register")
     @Operation(summary = "注册接口", description = "注册接口")
-    public ResponseEntity<Result<Integer>> register(@RequestBody @Parameter(description = "用户信息表") UserRegisterQuery user) {
+    public ResponseEntity<Result<Void>> register(@RequestBody @Parameter(description = "用户信息表") UserRegisterQuery user) {
         return Result.ok(userService.register(user)).responseEntity();
     }
 
     /**
      * 登录
      *
-     * @param user
-     * @return
+     * @param user 用户登录信息
+     * @return 用户授权和头像
      */
     @PostMapping("login")
     @Operation(summary = "登录接口", description = "登录接口")
@@ -64,12 +67,11 @@ public class UserController {
     /**
      * 获取用户信息
      *
-     * @param request
-     * @return
+     * @return 用户信息
      */
     @GetMapping("/profile")
     @Operation(summary = "用户详情", description = "根据用户id获取用户信息")
-    private ResponseEntity<Result<UserVO>> getUserInfo(HttpServletRequest request) {
+    private ResponseEntity<Result<UserVO>> getUserInfo() {
         Integer userId = getUserId(request);
         UserVO userInfo = userService.getUserInfo(userId);
         return Result.ok(userInfo).responseEntity();
@@ -77,38 +79,38 @@ public class UserController {
 
     /**
      * 获取用户头像
-     * @param request
-     * @return
+     *
+     * @return 用户头像
      */
     @GetMapping("/profile/avatar")
     @Operation(summary = "获取用户头像", description = "根据用户id获取用户头像")
-    private ResponseEntity<Result<String>> getUserAvatar(HttpServletRequest request) {
+    private ResponseEntity<Result<String>> getUserAvatar() {
         return Result.ok(userService.getUserAvatar(getUserId(request))).responseEntity();
     }
 
     /**
      * 修改用户信息
-     * @param request
-     * @param userVO
-     * @return
+     *
+     * @param userVO 用户信息
+     * @return 用户信息
      */
     @Operation(summary = "修改用户信息")
     @PutMapping("/profile")
-    private Result<UserVO> editUserInfo(HttpServletRequest request, @RequestBody @Validated UserVO userVO) {
+    private Result<UserVO> editUserInfo(@RequestBody @Validated UserVO userVO) {
         Integer userId = getUserId(request);
-        UserVO userInfo = userService.editUserInfo(userId,userVO);
+        UserVO userInfo = userService.editUserInfo(userId, userVO);
         return Result.ok(userInfo);
     }
 
     /**
-     *  修改用户头像
-     * @param request
-     * @param file
-     * @return
+     * 修改用户头像
+     *
+     * @param file 头像文件
+     * @return 头像地址
      */
     @Operation(summary = "修改用户头像")
     @PostMapping("/profile/avatar")
-    private Result<String> editUserAvatar(HttpServletRequest request, MultipartFile file) {
+    private Result<String> editUserAvatar(MultipartFile file) {
         Integer userId = getUserId(request);
         String uploadFileName = userService.editUserAvatar(userId, file);
         return Result.ok(uploadFileName);

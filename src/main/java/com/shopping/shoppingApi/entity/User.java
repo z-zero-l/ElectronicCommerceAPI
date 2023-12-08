@@ -1,20 +1,18 @@
 package com.shopping.shoppingApi.entity;
 
+import cn.hutool.core.date.DateTime;
 import com.mybatisflex.annotation.*;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import com.mybatisflex.core.activerecord.Model;
-import com.mybatisflex.core.mask.MaskManager;
+import com.mybatisflex.core.handler.Fastjson2TypeHandler;
 import com.mybatisflex.core.mask.Masks;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.CustomLog;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.ibatis.type.LocalDateTimeTypeHandler;
-import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 /**
  * 用户信息表 实体类。

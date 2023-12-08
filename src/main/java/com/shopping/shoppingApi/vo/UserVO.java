@@ -1,17 +1,17 @@
 package com.shopping.shoppingApi.vo;
 
+import cn.hutool.core.date.DateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Accessors(chain = true)
 @Data(staticConstructor = "create")
 public class UserVO {
-    @Schema(description = "登录token")
-    private String token;
     @Schema(description = "用户名")
     private String userName;
     @Schema(description = "账号")
@@ -23,8 +23,7 @@ public class UserVO {
     @Schema(description = "联系方式")
     private String phone;
     @Schema(description = "生日")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime birthday;
+    private String birthday;
     @Schema(description = "个人简介")
     private String profile;
     @Schema(description = "头像")

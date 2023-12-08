@@ -18,44 +18,48 @@ public interface UserService extends IService<User> {
     /**
      * 注册
      *
-     * @param userRegisterQuery
-     * @return
+     * @param userRegisterQuery 用户注册信息
      */
-    Integer register(UserRegisterQuery userRegisterQuery);
+    Void register(UserRegisterQuery userRegisterQuery);
 
     /**
      * 登录
-     * @param userLoginQuery
-     * @return
+     *
+     * @param userLoginQuery 用户登录信息
+     * @return 用户授权和头像信息
      */
     LoginResultVO login(UserLoginQuery userLoginQuery);
 
     /**
      * 获取用户信息
-     * @param userId
-     * @return
+     *
+     * @param userId 用户ID
+     * @return 用户信息
      */
     UserVO getUserInfo(Integer userId);
 
     /**
      * 获取用户头像
-     * @param userId
-     * @return
+     *
+     * @param userId 用户ID
+     * @return 用户头像地址
      */
     String getUserAvatar(Integer userId);
 
     /**
      * 编辑用户信息
-     * @param userVO
-     * @return
+     *
+     * @param userVO 用户信息
+     * @return 用户信息
      */
-    UserVO editUserInfo(Integer userId,UserVO userVO);
+    UserVO editUserInfo(Integer userId, UserVO userVO);
 
     /**
      * 编辑用户头像
-     * @param userId
-     * @param file
-     * @return
+     *
+     * @param userId 用户ID
+     * @param file   头像文件
+     * @return 用户头像地址
      */
     String editUserAvatar(Integer userId, MultipartFile file);
 }
