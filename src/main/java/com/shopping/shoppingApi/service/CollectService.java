@@ -11,4 +11,20 @@ import com.shopping.shoppingApi.entity.Collect;
  */
 public interface CollectService extends IService<Collect> {
 
+    /**
+     * 添加收藏
+     *
+     * @param userId    用户ID
+     * @param productId 商品ID
+     */
+    Void addCollect(Integer userId, Integer productId);
+
+    /**
+     * 取消收藏
+     *
+     * @param userId    用户ID
+     * @param productId 商品ID
+     */
+    Void cancelCollect(Integer userId, Integer productId);
+
 }

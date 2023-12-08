@@ -1,16 +1,22 @@
 package com.shopping.shoppingApi.controller;
 
 import com.mybatisflex.core.paginate.Page;
+import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.Collect;
 import com.shopping.shoppingApi.service.CollectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.List;
+
+import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
 
 /**
  * 收藏 控制层。
@@ -19,11 +25,32 @@ import java.util.List;
  * @since 2023-12-04
  */
 @RestController
-@Tag(name = "收藏接口")
+@Tag(name = "收藏模块")
 @RequestMapping("/collect")
 @AllArgsConstructor
 public class CollectController {
     private CollectService collectService;
+
+    @Resource
+    private HttpServletRequest request;
+
+    /**
+     * 添加收藏
+     */
+    @PostMapping("add")
+    @Operation(description = "添加收藏")
+    public ResponseEntity<Result<Void>> add(@RequestParam Integer productId) {
+        return Result.ok(collectService.addCollect(getUserId(request),productId)).responseEntity();
+    }
+
+    /**
+     * 取消收藏
+     */
+    @PostMapping("cancel")
+    @Operation(description = "取消收藏")
+    public ResponseEntity<Result<Void>> cancel(@RequestParam Integer productId) {
+        return Result.ok(collectService.cancelCollect(getUserId(request),productId)).responseEntity();
+    }
 
     /**
      * 添加收藏。
