@@ -38,7 +38,7 @@ public class CollectController {
      * 添加收藏
      */
     @PostMapping("add")
-    @Operation(description = "添加收藏")
+    @Operation(description = "添加收藏",summary = "添加收藏")
     public ResponseEntity<Result<Void>> add(@RequestParam Integer productId) {
         return Result.ok(collectService.addCollect(getUserId(request),productId)).responseEntity();
     }
@@ -47,7 +47,7 @@ public class CollectController {
      * 取消收藏
      */
     @PostMapping("cancel")
-    @Operation(description = "取消收藏")
+    @Operation(description = "取消收藏",summary = "取消收藏")
     public ResponseEntity<Result<Void>> cancel(@RequestParam Integer productId) {
         return Result.ok(collectService.cancelCollect(getUserId(request),productId)).responseEntity();
     }
