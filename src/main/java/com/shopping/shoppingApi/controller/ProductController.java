@@ -51,7 +51,7 @@ public class ProductController {
      * @return 首页商品列表
      */
     @GetMapping("indexList")
-    @Operation(description = "查询首页商品", summary = "查询首页商品")
+    @Operation(description = "首页商品列表", summary = "查询首页列表")
     public ResponseEntity<Result<List<IndexProductVO>>> getIndexProductList() {
         return Result.ok(productService.getIndexProductList()).responseEntity();
     }

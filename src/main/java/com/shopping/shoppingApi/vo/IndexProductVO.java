@@ -14,6 +14,8 @@ public class IndexProductVO implements Serializable {
     private Integer productId;
     @Schema(description = "商品名称")
     private String productName;
+    @Schema(description = "店铺ID")
+    private Integer businessId;
     @Schema(description = "所属店铺")
     private String business;
     @Schema(description = "商品封面图片")

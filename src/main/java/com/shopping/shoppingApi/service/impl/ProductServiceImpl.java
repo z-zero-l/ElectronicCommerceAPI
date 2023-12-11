@@ -168,6 +168,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                     indexProductVOS.add(IndexProductVO.create()
                             .setProductId(product.getProductId()) // 主键
                             .setProductName(product.getProductName()) // 商品名称
+                            .setBusinessId(product.getBusinessId())
                             .setBusiness((String) businessMapper.selectObjectByQuery(
                                     new QueryWrapper().select(BUSINESS.BUSINESS_NAME).where(BUSINESS.ID.eq(product.getBusinessId())))) // 所属店铺
                             .setFreight(product.getFreight()) // 运费
