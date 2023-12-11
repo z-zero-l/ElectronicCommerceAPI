@@ -9,8 +9,12 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @Data(staticConstructor = "create")
 public class CartVO implements Serializable {
+    @Schema(description = "主键")
+    private Integer cartId;
     @Schema(description = "商品id")
     private Integer productId;
+    @Schema(description = "商品名称")
+    private String productName;
     @Schema(description = "商品规格id")
     private Integer specId;
     @Schema(description = "商品规格名称")

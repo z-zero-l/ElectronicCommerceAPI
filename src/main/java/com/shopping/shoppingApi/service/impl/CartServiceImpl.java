@@ -48,8 +48,14 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         for (Cart cart : carts) {
             Product product = productMapper.selectOneById(cart.getProductId());
             ProductSpec productSpec = productSpecMapper.selectOneById(cart.getProductId());
+            if (product == null || productSpec == null) {
+                removeById(cart.getCartId());
+                continue;
+            }
             CartVO cartVO = CartVO.create()
+                    .setCartId(cart.getCartId())
                     .setProductId(product.getProductId())
+                    .setProductName(product.getProductName())
                     .setSpecId(productSpec.getId())
                     .setSpecName(productSpec.getSpecName())
                     .setSpecImg(productSpec.getSpecImg())
