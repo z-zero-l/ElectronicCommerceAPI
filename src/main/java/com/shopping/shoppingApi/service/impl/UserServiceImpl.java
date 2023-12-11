@@ -208,7 +208,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public String editUserAvatar(Integer userId, MultipartFile file) {
-        if (exists(new QueryWrapper().eq("user_id", userId))) {
+        if (!exists(new QueryWrapper().eq("user_id", userId))) {
             throw new ServerException("用户不存在");
         }
         String endpoint = fileResource.getEndpoint();
