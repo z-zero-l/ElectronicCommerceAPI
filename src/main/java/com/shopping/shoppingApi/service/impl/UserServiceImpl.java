@@ -152,7 +152,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public String getUserAvatar(Integer userId) {
-        if (super.exists(new QueryWrapper().eq("user_id", userId))) {
+        if (exists(new QueryWrapper().eq("user_id", userId))) {
             return (String) super.getObj(new QueryWrapper().select("avatar").eq("user_id", userId));
         } else {
             throw new ServerException("用户不存在");
@@ -220,13 +220,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         assert filename != null;
         String[] fileNameArr = filename.split("\\.");
         String suffix = fileNameArr[fileNameArr.length - 1];
-        String uploadFileName = fileResource.getObjectName() + UUID.randomUUID() + "." + suffix;
         InputStream inputStream;
         try {
             inputStream = file.getInputStream();
         } catch (IOException e) {
             throw new ServerException("文件上传失败");
         }
+        String uploadFileName = "avatar/"+SmUtil.sm3(inputStream)+"."+suffix;
         ossClient.putObject(fileResource.getBucketName(), uploadFileName, inputStream);
         ossClient.shutdown();
         User user = User.create().setUserId(userId);

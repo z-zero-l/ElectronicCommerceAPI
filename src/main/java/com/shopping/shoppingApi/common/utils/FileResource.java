@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 @PropertySource("classpath:file.properties")
 @ConfigurationProperties(prefix = "file")
 public class FileResource {
-    private String host;
     private String endpoint;
     private String bucketName;
     private String objectName;

@@ -19,7 +19,7 @@ public class APIConstant {
     /**
      * 默认头像
      */
-    public static String DEFAULT_AVATAR = "https://wg233-own.oss-cn-hangzhou.aliyuncs.com/cover.png";
+    public static String DEFAULT_AVATAR = "https://wg233-own.oss-cn-hangzhou.aliyuncs.com/avatar/5924d882ef5d27db3dfb41bf7be964cb4de7ec9ddc5aed6f2fe821b197938b1e.png";
 
     /**
      * token 过期时间 15天
