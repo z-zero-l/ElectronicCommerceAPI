@@ -94,10 +94,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 加密密码
         String password = SmUtil.sm3(PASSWORD_SALT + userLoginQuery.getPassword());
         // 查询用户
-        User user = super.getOne(QueryWrapper.create().eq("account", userLoginQuery.getAccount()).eq("password", password));
-        if (user == null) {
+        if (!exists(new QueryWrapper().eq("account", userLoginQuery.getAccount()).eq("password", password))) {
             throw new ServerException("账号或密码错误");
         }
+        User user = super.getOne(QueryWrapper.create().eq("account", userLoginQuery.getAccount()).eq("password", password));
         LoginResultVO userVO = new LoginResultVO();
         userVO.setAvatar(user.getAvatar());
         UserTokenVO tokenVO = new UserTokenVO(user.getUserId());
