@@ -4,6 +4,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.Collect;
 import com.shopping.shoppingApi.service.CollectService;
+import com.shopping.shoppingApi.vo.CollectVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,64 +53,70 @@ public class CollectController {
         return Result.ok(collectService.cancelCollect(getUserId(request),productId)).responseEntity();
     }
 
-    /**
-     * 添加收藏。
-     *
-     * @param collect 收藏
-     * @return {@code true} 添加成功，{@code false} 添加失败
-     */
-    @PostMapping("save")
-    @Operation(description = "保存收藏")
-    public boolean save(@RequestBody @Parameter(description = "收藏") Collect collect) {
-        return collectService.save(collect);
-    }
-
-    /**
-     * 根据主键删除收藏。
-     *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
-     */
-    @DeleteMapping("remove/{id}")
-    @Operation(description = "根据主键收藏")
-    public boolean remove(@PathVariable @Parameter(description = "收藏主键") Serializable id) {
-        return collectService.removeById(id);
-    }
-
-    /**
-     * 根据主键更新收藏。
-     *
-     * @param collect 收藏
-     * @return {@code true} 更新成功，{@code false} 更新失败
-     */
-    @PutMapping("update")
-    @Operation(description = "根据主键更新收藏")
-    public boolean update(@RequestBody @Parameter(description = "收藏主键") Collect collect) {
-        return collectService.updateById(collect);
-    }
-
-    /**
-     * 查询所有收藏。
-     *
-     * @return 所有数据
-     */
     @GetMapping("list")
-    @Operation(description = "查询所有收藏")
-    public List<Collect> list() {
-        return collectService.list();
+    @Operation(summary = "获取收藏列表", description = "根据用户id获取收藏列表")
+    public ResponseEntity<Result<List<CollectVO>>> getCollectList(@RequestParam(required = false) Integer categoryId) {
+        return Result.ok(collectService.getCollectList(getUserId(request),categoryId)).responseEntity();
     }
 
-    /**
-     * 根据收藏主键获取详细信息。
-     *
-     * @param id 收藏主键
-     * @return 收藏详情
-     */
-    @GetMapping("getInfo/{id}")
-    @Operation(description = "根据主键获取收藏")
-    public Collect getInfo(@PathVariable Serializable id) {
-        return collectService.getById(id);
-    }
+//    /**
+//     * 添加收藏。
+//     *
+//     * @param collect 收藏
+//     * @return {@code true} 添加成功，{@code false} 添加失败
+//     */
+//    @PostMapping("save")
+//    @Operation(description = "保存收藏")
+//    public boolean save(@RequestBody @Parameter(description = "收藏") Collect collect) {
+//        return collectService.save(collect);
+//    }
+//
+//    /**
+//     * 根据主键删除收藏。
+//     *
+//     * @param id 主键
+//     * @return {@code true} 删除成功，{@code false} 删除失败
+//     */
+//    @DeleteMapping("remove/{id}")
+//    @Operation(description = "根据主键收藏")
+//    public boolean remove(@PathVariable @Parameter(description = "收藏主键") Serializable id) {
+//        return collectService.removeById(id);
+//    }
+//
+//    /**
+//     * 根据主键更新收藏。
+//     *
+//     * @param collect 收藏
+//     * @return {@code true} 更新成功，{@code false} 更新失败
+//     */
+//    @PutMapping("update")
+//    @Operation(description = "根据主键更新收藏")
+//    public boolean update(@RequestBody @Parameter(description = "收藏主键") Collect collect) {
+//        return collectService.updateById(collect);
+//    }
+//
+//    /**
+//     * 查询所有收藏。
+//     *
+//     * @return 所有数据
+//     */
+//    @GetMapping("list")
+//    @Operation(description = "查询所有收藏")
+//    public List<Collect> list() {
+//        return collectService.list();
+//    }
+//
+//    /**
+//     * 根据收藏主键获取详细信息。
+//     *
+//     * @param id 收藏主键
+//     * @return 收藏详情
+//     */
+//    @GetMapping("getInfo/{id}")
+//    @Operation(description = "根据主键获取收藏")
+//    public Collect getInfo(@PathVariable Serializable id) {
+//        return collectService.getById(id);
+//    }
 
     /**
      * 分页查询收藏。
