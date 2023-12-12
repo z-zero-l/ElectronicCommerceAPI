@@ -5,13 +5,13 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Business;
+import com.shopping.shoppingApi.entity.Category;
 import com.shopping.shoppingApi.entity.Collect;
 import com.shopping.shoppingApi.entity.Product;
-import com.shopping.shoppingApi.mapper.BusinessMapper;
-import com.shopping.shoppingApi.mapper.CollectMapper;
-import com.shopping.shoppingApi.mapper.ProductMapper;
-import com.shopping.shoppingApi.mapper.ProductSpecMapper;
+import com.shopping.shoppingApi.mapper.*;
 import com.shopping.shoppingApi.service.CollectService;
+import com.shopping.shoppingApi.vo.CategoryChildVO;
+import com.shopping.shoppingApi.vo.CategoryVO;
 import com.shopping.shoppingApi.vo.CollectVO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.mybatisflex.core.query.QueryMethods.min;
+import static com.shopping.shoppingApi.entity.table.CategoryTableDef.CATEGORY;
+import static com.shopping.shoppingApi.entity.table.CollectTableDef.COLLECT;
 import static com.shopping.shoppingApi.entity.table.ProductSpecTableDef.PRODUCT_SPEC;
+import static com.shopping.shoppingApi.entity.table.ProductTableDef.PRODUCT;
 
 /**
  * 收藏 服务层实现。
@@ -35,6 +38,7 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
     private ProductMapper productMapper;
     private BusinessMapper businessMapper;
     private ProductSpecMapper productSpecMapper;
+    private CategoryMapper categoryMapper;
 
     /**
      * 添加收藏
@@ -121,5 +125,45 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
             collectVOS.add(collectVO);
         }
         return collectVOS;
+    }
+
+    /**
+     * 获取收藏的分类列表
+     *
+     * @param userId 用户ID
+     * @return 分类列表
+     */
+    @Override
+    public List<CategoryVO> getCategoryList(Integer userId) {
+        ArrayList<CategoryVO> categoryVOS = new ArrayList<>();
+        categoryMapper.selectListByQuery(QueryChain.create().where(CATEGORY.PARENT_ID.eq(0)))
+                .forEach(category -> {
+                    List<Category> list = categoryMapper.selectListByQuery(QueryChain.create()
+                            .join(PRODUCT).on(PRODUCT.CATE_SEC_ID.eq(CATEGORY.CATEGORY_ID))
+                            .join(COLLECT).on(COLLECT.PRODUCT_ID.eq(PRODUCT.PRODUCT_ID))
+                            .where(CATEGORY.PARENT_ID.eq(category.getCategoryId()))
+                            .where(COLLECT.USER_ID.eq(userId))
+                            .orderBy(CATEGORY.CATEGORY_ID.asc()));
+                    if (!list.isEmpty()) {
+                        ArrayList<CategoryChildVO> categoryChildVOS = new ArrayList<>();
+                        list.forEach(categoryChild -> {
+                            List<CollectVO> collectList = getCollectList(userId, categoryChild.getCategoryId());
+                            if (!collectList.isEmpty()) {
+                                categoryChildVOS.add(CategoryChildVO.create()
+                                        .setCategoryId(categoryChild.getCategoryId())
+                                        .setCateName(categoryChild.getCateName())
+                                        .setCateIcon(categoryChild.getCateIcon())
+                                        .setCateColor(categoryChild.getCateColor()));
+                            }
+                        });
+                        categoryVOS.add(CategoryVO.create()
+                                .setCategoryId(category.getCategoryId())
+                                .setCateName(category.getCateName())
+                                .setCateIcon(category.getCateIcon())
+                                .setCateColor(category.getCateColor())
+                                .setChildCate(categoryChildVOS));
+                    }
+                });
+        return categoryVOS;
     }
 }

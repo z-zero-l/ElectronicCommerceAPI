@@ -4,6 +4,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.Collect;
 import com.shopping.shoppingApi.service.CollectService;
+import com.shopping.shoppingApi.vo.CategoryVO;
 import com.shopping.shoppingApi.vo.CollectVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,10 +53,27 @@ public class CollectController {
         return Result.ok(collectService.cancelCollect(getUserId(request), productId)).responseEntity();
     }
 
+    /**
+     * 获取收藏列表
+     *
+     * @param categoryId 分类id
+     * @return 收藏列表
+     */
     @GetMapping("list")
     @Operation(summary = "获取收藏列表", description = "根据用户id获取收藏列表")
     public ResponseEntity<Result<List<CollectVO>>> getCollectList(@RequestParam(required = false) Integer categoryId) {
         return Result.ok(collectService.getCollectList(getUserId(request), categoryId)).responseEntity();
+    }
+
+    /**
+     * 获取收藏分类
+     *
+     * @return 收藏分类
+     */
+    @GetMapping("category")
+    @Operation(summary = "获取收藏分类", description = "获取收藏分类")
+    public ResponseEntity<Result<List<CategoryVO>>> getCategoryList() {
+        return Result.ok(collectService.getCategoryList(getUserId(request))).responseEntity();
     }
 
 //    /**

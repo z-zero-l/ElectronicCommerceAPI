@@ -2,6 +2,7 @@ package com.shopping.shoppingApi.service;
 
 import com.mybatisflex.core.service.IService;
 import com.shopping.shoppingApi.entity.Collect;
+import com.shopping.shoppingApi.vo.CategoryVO;
 import com.shopping.shoppingApi.vo.CollectVO;
 
 import java.util.List;
@@ -32,11 +33,18 @@ public interface CollectService extends IService<Collect> {
 
     /**
      * 获取收藏列表
-     * @param userId 用户ID
+     *
+     * @param userId     用户ID
      * @param categoryId 分类ID
      * @return 收藏列表
      */
-    List<CollectVO> getCollectList(Integer userId,Integer categoryId);
+    List<CollectVO> getCollectList(Integer userId, Integer categoryId);
 
-    // todo: 返回有效的分类列表
+    /**
+     * 获取收藏的分类列表
+     *
+     * @param userId 用户ID
+     * @return 分类列表
+     */
+    List<CategoryVO> getCategoryList(Integer userId);
 }
