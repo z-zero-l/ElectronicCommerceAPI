@@ -50,7 +50,7 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
      */
     @Override
     public List<CategoryVO> getCategoryList() {
-        List<Category> list = super.list(new QueryWrapper().eq("parent_id", 0));
+        List<Category> list = list(new QueryWrapper().eq("parent_id", 0));
         ArrayList<CategoryVO> categoryVOS = new ArrayList<>();
         for (Category category : list) {
             categoryVOS.add(CategoryVO.create()
