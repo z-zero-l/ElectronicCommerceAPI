@@ -41,7 +41,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * @return 订单列表
      */
     @Override
-    public List<OrderVO> getOrderList(Integer userId) {
+    public List<OrderItemVO> getOrderList(Integer userId) {
         ArrayList<OrderVO> orderVOS = new ArrayList<>();
         list(QueryChain.create().where(ORDER.USER_ID.eq(userId))).forEach(order -> {
             orderVOS.add(OrderVO.create()
@@ -68,6 +68,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     });
             orderVO.setOrderDetail(orderItemVOS);
         });
-        return orderVOS;
+        return orderItemVOS;
     }
 }
