@@ -46,7 +46,7 @@ public class CollectController {
     /**
      * 取消收藏
      */
-    @PostMapping("cancel")
+    @DeleteMapping("cancel")
     @Operation(description = "取消收藏", summary = "取消收藏")
     public ResponseEntity<Result<Void>> cancel(@RequestParam Integer productId) {
         return Result.ok(collectService.cancelCollect(getUserId(request), productId)).responseEntity();
