@@ -29,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
 import static com.shopping.shoppingApi.constant.APIConstant.*;
 
@@ -226,7 +225,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } catch (IOException e) {
             throw new ServerException("文件上传失败");
         }
-        String uploadFileName = "avatar/"+SmUtil.sm3(inputStream)+"."+suffix;
+        String uploadFileName = "avatar/" + SmUtil.sm3(inputStream) + "." + suffix;
+        try {
+            inputStream = file.getInputStream();
+        } catch (IOException e) {
+            throw new ServerException("文件上传失败");
+        }
         ossClient.putObject(fileResource.getBucketName(), uploadFileName, inputStream);
         ossClient.shutdown();
         User user = User.create().setUserId(userId);
