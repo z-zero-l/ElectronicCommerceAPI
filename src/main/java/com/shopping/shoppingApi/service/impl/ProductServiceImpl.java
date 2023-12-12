@@ -1,9 +1,9 @@
 package com.shopping.shoppingApi.service.impl;
 
-import cn.hutool.core.util.RandomUtil;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryMethods;
 import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.spring.service.impl.CacheableServiceImpl;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Category;
@@ -12,6 +12,7 @@ import com.shopping.shoppingApi.mapper.*;
 import com.shopping.shoppingApi.service.ProductService;
 import com.shopping.shoppingApi.vo.*;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -158,8 +159,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public List<IndexProductVO> getIndexProductList() {
         ArrayList<IndexProductVO> indexProductVOS = new ArrayList<>();
-        List<Product> list = list(new QueryWrapper().where(PRODUCT.PRODUCT_STATUS.eq(1)));
-        RandomUtil.randomEleSet(list, 48)
+        list(new QueryWrapper().where(PRODUCT.PRODUCT_STATUS.eq(1)).orderBy(QueryMethods.rand().asc()).limit(48))
                 .forEach(product -> {
                     BigDecimal isHot = ((BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
