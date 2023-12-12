@@ -1,16 +1,23 @@
 package com.shopping.shoppingApi.controller;
 
 import com.mybatisflex.core.paginate.Page;
+import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.Order;
 import com.shopping.shoppingApi.service.OrderService;
+import com.shopping.shoppingApi.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.List;
+
+import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
 
 /**
  * 订单 控制层。
@@ -19,11 +26,20 @@ import java.util.List;
  * @since 2023-12-04
  */
 @RestController
-@Tag(name = "订单接口")
+@Tag(name = "订单模块")
 @RequestMapping("/order")
 @AllArgsConstructor
 public class OrderController {
     private OrderService orderService;
+
+    @Resource
+    private HttpServletRequest request;
+
+    @GetMapping("list")
+    @Operation(description = "查询所有订单", summary = "查询所有订单")
+    public ResponseEntity<Result<List<OrderVO>>> getOrderList() {
+        return Result.ok(orderService.getOrderList(getUserId(request))).responseEntity();
+    }
 
     /**
      * 添加订单。
@@ -61,16 +77,16 @@ public class OrderController {
         return orderService.updateById(order);
     }
 
-    /**
-     * 查询所有订单。
-     *
-     * @return 所有数据
-     */
-    @GetMapping("list")
-    @Operation(description = "查询所有订单")
-    public List<Order> list() {
-        return orderService.list();
-    }
+//    /**
+//     * 查询所有订单。
+//     *
+//     * @return 所有数据
+//     */
+//    @GetMapping("list")
+//    @Operation(description = "查询所有订单")
+//    public List<Order> list() {
+//        return orderService.list();
+//    }
 
     /**
      * 根据订单主键获取详细信息。
