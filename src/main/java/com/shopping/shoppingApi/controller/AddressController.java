@@ -1,16 +1,23 @@
 package com.shopping.shoppingApi.controller;
 
 import com.mybatisflex.core.paginate.Page;
+import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.Address;
 import com.shopping.shoppingApi.service.AddressService;
+import com.shopping.shoppingApi.vo.AddressVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.List;
+
+import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
 
 /**
  * 用户地址信息表 控制层。
@@ -19,12 +26,22 @@ import java.util.List;
  * @since 2023-12-04
  */
 @RestController
-@Tag(name = "用户地址信息表接口")
+@Tag(name = "地址模块")
 @RequestMapping("/address")
 public class AddressController {
 
     @Autowired
     private AddressService addressService;
+
+    @Resource
+    private HttpServletRequest request;
+
+    @GetMapping("list")
+    @Operation(description = "查询用户地址信息表列表", summary = "查询用户地址信息表列表")
+    public ResponseEntity<Result<List<AddressVO>>> list() {
+        return Result.ok(addressService.getAddressList(getUserId(request))).responseEntity();
+    }
+
 
     /**
      * 添加用户地址信息表。
@@ -62,16 +79,16 @@ public class AddressController {
         return addressService.updateById(address);
     }
 
-    /**
-     * 查询所有用户地址信息表。
-     *
-     * @return 所有数据
-     */
-    @GetMapping("list")
-    @Operation(description = "查询所有用户地址信息表")
-    public List<Address> list() {
-        return addressService.list();
-    }
+//    /**
+//     * 查询所有用户地址信息表。
+//     *
+//     * @return 所有数据
+//     */
+//    @GetMapping("list")
+//    @Operation(description = "查询所有用户地址信息表")
+//    public List<Address> list() {
+//        return addressService.list();
+//    }
 
     /**
      * 根据用户地址信息表主键获取详细信息。
