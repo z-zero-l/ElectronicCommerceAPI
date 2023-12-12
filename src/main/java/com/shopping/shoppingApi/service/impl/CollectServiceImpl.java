@@ -89,9 +89,12 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
     public List<CollectVO> getCollectList(Integer userId, Integer categoryId) {
         List<Collect> collects;
         if (categoryId != null) {
-            collects = list(new QueryWrapper().eq("user_id", userId).eq("product_id", categoryId));
+            collects = list(QueryChain.create()
+                    .join(PRODUCT).on(PRODUCT.PRODUCT_ID.eq(COLLECT.PRODUCT_ID))
+                    .where(COLLECT.USER_ID.eq(userId))
+                    .where(PRODUCT.CATE_SEC_ID.eq(categoryId)));
         } else {
-            collects = list(new QueryWrapper().eq("user_id", userId));
+            collects = list(QueryChain.create().eq("user_id", userId));
         }
         List<CollectVO> collectVOS = new ArrayList<>();
         for (Collect collect : collects) {
