@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.Serializable;
 import java.util.List;
 
 import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
@@ -39,24 +38,24 @@ public class CollectController {
      * 添加收藏
      */
     @PostMapping("add")
-    @Operation(description = "添加收藏",summary = "添加收藏")
+    @Operation(description = "添加收藏", summary = "添加收藏")
     public ResponseEntity<Result<Void>> add(@RequestParam Integer productId) {
-        return Result.ok(collectService.addCollect(getUserId(request),productId)).responseEntity();
+        return Result.ok(collectService.addCollect(getUserId(request), productId)).responseEntity();
     }
 
     /**
      * 取消收藏
      */
     @PostMapping("cancel")
-    @Operation(description = "取消收藏",summary = "取消收藏")
+    @Operation(description = "取消收藏", summary = "取消收藏")
     public ResponseEntity<Result<Void>> cancel(@RequestParam Integer productId) {
-        return Result.ok(collectService.cancelCollect(getUserId(request),productId)).responseEntity();
+        return Result.ok(collectService.cancelCollect(getUserId(request), productId)).responseEntity();
     }
 
     @GetMapping("list")
     @Operation(summary = "获取收藏列表", description = "根据用户id获取收藏列表")
     public ResponseEntity<Result<List<CollectVO>>> getCollectList(@RequestParam(required = false) Integer categoryId) {
-        return Result.ok(collectService.getCollectList(getUserId(request),categoryId)).responseEntity();
+        return Result.ok(collectService.getCollectList(getUserId(request), categoryId)).responseEntity();
     }
 
 //    /**

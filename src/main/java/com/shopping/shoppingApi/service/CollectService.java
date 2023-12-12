@@ -38,4 +38,5 @@ public interface CollectService extends IService<Collect> {
      */
     List<CollectVO> getCollectList(Integer userId,Integer categoryId);
 
+    // todo: 返回有效的分类列表
 }
