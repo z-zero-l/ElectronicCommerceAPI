@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Accessors(chain = true)
 @Data(staticConstructor = "create")
@@ -17,4 +18,6 @@ public class CategoryChildVO implements Serializable {
     private String cateIcon;
     @Schema(description = "颜色标识")
     private String cateColor;
+    @Schema(description = "商品列表")
+    private List<IndexProductVO> productList;
 }
