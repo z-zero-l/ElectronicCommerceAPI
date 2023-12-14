@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.shopping.shoppingApi.entity.table.CartTableDef.CART;
+import static com.shopping.shoppingApi.entity.table.ProductSpecTableDef.PRODUCT_SPEC;
+
 /**
  * 购物车 服务层实现。
  *
@@ -67,5 +70,38 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             cartVOS.add(cartVO);
         }
         return cartVOS;
+    }
+
+    /**
+     * 修改购物车
+     *
+     * @param userId 用户id
+     * @param cartVO 购物车
+     */
+    @Override
+    public Void updateCart(Integer userId, CartVO cartVO) {
+        if (cartVO.getCartId() == null) {
+            throw new ServerException("购物车id不能为空");
+        }
+        if (!exists(QueryChain.create().where(CART.USER_ID.eq(userId)).where(CART.CART_ID.eq(cartVO.getCartId())))) {
+            throw new ServerException("您的购物车不存在此商品");
+        }
+        Cart cart = getById(cartVO.getCartId());
+        if (cart.getSelected() == 1 || cart.getSelected() == 0) {
+            cart.setSelected(cartVO.getSelected());
+        }
+        if (cart.getQuantity() != null && cart.getQuantity() > 0) {
+            Integer productStock = (Integer) QueryChain.of(productSpecMapper).select(PRODUCT_SPEC.STOCK).where(PRODUCT_SPEC.ID.eq(cart.getProductId())).obj();
+            if (cart.getQuantity() > productStock) {
+                throw new ServerException("库存不足");
+            } else {
+                cart.setQuantity(cartVO.getQuantity());
+            }
+        }
+        System.err.println(cart);
+        if (!updateById(cart)) {
+            throw new ServerException("修改购物车失败");
+        }
+        return null;
     }
 }

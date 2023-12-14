@@ -35,10 +35,27 @@ public class CartController {
     @Resource
     private HttpServletRequest request;
 
+    /**
+     * 获取购物车列表。
+     *
+     * @return 购物车列表
+     */
     @GetMapping("list")
     @Operation(summary = "获取购物车列表", description = "根据用户id获取购物车列表")
     public ResponseEntity<Result<List<CartVO>>> getCartList() {
         return Result.ok(cartService.getCartList(getUserId(request))).responseEntity();
+    }
+
+    /**
+     * 更新购物车物品选中状态
+     *
+     * @param cartVO 购物车信息
+     * @return 更新结果
+     */
+    @PutMapping("update")
+    @Operation(summary = "更新购物车物品", description = "根据购物车id更新购物车物品")
+    public ResponseEntity<Result<Void>> updateCart(@RequestBody CartVO cartVO) {
+        return Result.ok(cartService.updateCart(getUserId(request), cartVO)).responseEntity();
     }
 
     /**
@@ -65,17 +82,17 @@ public class CartController {
         return cartService.removeById(id);
     }
 
-    /**
-     * 根据主键更新购物车。
-     *
-     * @param cart 购物车
-     * @return {@code true} 更新成功，{@code false} 更新失败
-     */
-    @PutMapping("update")
-    @Operation(description = "根据主键更新购物车")
-    public boolean update(@RequestBody @Parameter(description = "购物车主键") Cart cart) {
-        return cartService.updateById(cart);
-    }
+//    /**
+//     * 根据主键更新购物车。
+//     *
+//     * @param cart 购物车
+//     * @return {@code true} 更新成功，{@code false} 更新失败
+//     */
+//    @PutMapping("update")
+//    @Operation(description = "根据主键更新购物车")
+//    public boolean update(@RequestBody @Parameter(description = "购物车主键") Cart cart) {
+//        return cartService.updateById(cart);
+//    }
 
 //    /**
 //     * 查询所有购物车。
