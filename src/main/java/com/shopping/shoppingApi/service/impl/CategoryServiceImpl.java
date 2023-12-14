@@ -13,7 +13,6 @@ import com.shopping.shoppingApi.vo.CategoryVO;
 import com.shopping.shoppingApi.vo.IndexProductVO;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,6 +23,7 @@ import java.util.List;
 import static com.mybatisflex.core.query.QueryMethods.sum;
 import static com.shopping.shoppingApi.entity.table.BusinessTableDef.BUSINESS;
 import static com.shopping.shoppingApi.entity.table.OrderItemTableDef.ORDER_ITEM;
+import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
 import static com.shopping.shoppingApi.entity.table.ProductSpecTableDef.PRODUCT_SPEC;
 import static com.shopping.shoppingApi.entity.table.ProductTableDef.PRODUCT;
 
@@ -102,9 +102,12 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
             ArrayList<IndexProductVO> indexProductVOS = new ArrayList<>();
             productMapper.selectListByQuery(new QueryWrapper().where(PRODUCT.PRODUCT_STATUS.eq(1)).where(PRODUCT.CATE_SEC_ID.eq(category.getCategoryId())).orderBy(QueryMethods.rand().asc()).limit(4))
                     .forEach(product -> {
-                        BigDecimal isHot = ((BigDecimal) QueryChain.of(orderItemMapper)
+                        BigDecimal weekSellAmount = ((BigDecimal) QueryChain.of(orderItemMapper)
                                 .select(sum(ORDER_ITEM.AMOUNT))
                                 .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
+                                .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
+                                .where(ORDER_ITEM.STATUS.notIn(List.of(5)))
+                                .where(ORDER_ITEM.CREATE_TIME.between(LocalDateTime.now().minusDays(7), LocalDateTime.now()))
                                 .obj());
                         indexProductVOS.add(IndexProductVO.create()
                                 .setProductId(product.getProductId()) // 主键
@@ -115,7 +118,7 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
                                 .setFreight(product.getFreight()) // 运费
                                 .setPrice((Double) QueryChain.of(productSpecMapper).select(QueryMethods.min(PRODUCT_SPEC.SELL_PRICE)).where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId())).obj()) // 商品价格
                                 .setProductCover(product.getProductCover()) // 商品封面图片
-                                .setIsHot(isHot != null && (isHot.intValue() > 10)) // 是否热门
+                                .setIsHot(weekSellAmount != null && (weekSellAmount.intValue() > 10)) // 是否热门
                                 .setIsNew(
                                         QueryChain.of(productSpecMapper)
                                                 .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))
