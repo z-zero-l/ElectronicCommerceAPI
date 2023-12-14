@@ -4,7 +4,6 @@ import com.mybatisflex.core.paginate.Page;
 import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.query.UserLoginQuery;
-import com.shopping.shoppingApi.query.UserQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.service.UserService;
 import com.shopping.shoppingApi.vo.LoginResultVO;
@@ -92,14 +91,14 @@ public class UserController {
     /**
      * 修改用户信息
      *
-     * @param userQuery 用户信息
+     * @param userVO 用户信息
      * @return 用户信息
      */
     @Operation(summary = "修改用户信息")
     @PutMapping("/profile")
-    private ResponseEntity<Result<Void>> editUserInfo(@RequestBody @Validated UserQuery userQuery) {
+    private ResponseEntity<Result<Void>> editUserInfo(@RequestBody @Validated UserVO userVO) {
         Integer userId = getUserId(request);
-        return Result.ok(userService.editUserInfo(userId, userQuery)).responseEntity();
+        return Result.ok(userService.editUserInfo(userId, userVO)).responseEntity();
     }
 
     /**

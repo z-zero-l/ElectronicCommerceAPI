@@ -16,7 +16,6 @@ import com.shopping.shoppingApi.constant.APIConstant;
 import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.mapper.UserMapper;
 import com.shopping.shoppingApi.query.UserLoginQuery;
-import com.shopping.shoppingApi.query.UserQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.service.RedisService;
 import com.shopping.shoppingApi.service.UserService;
@@ -162,38 +161,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 编辑用户信息
      *
-     * @param userQuery 用户信息
+     * @param userVO 用户信息
      * @return 用户信息
      */
     @Override
-    public Void editUserInfo(Integer userId, UserQuery userQuery) {
+    public Void editUserInfo(Integer userId, UserVO userVO) {
         if (!exists(new QueryWrapper().eq("user_id", userId))) {
             throw new ServerException("用户不存在");
         }
         User user = User.create().setUserId(userId);
-        if (userQuery.getUserName() != null) {
-            user.setUserName(userQuery.getUserName());
+        if (userVO.getUserName() != null) {
+            user.setUserName(userVO.getUserName());
         }
-        if (userQuery.getAccount() != null) {
-            user.setAccount(userQuery.getAccount());
+        if (userVO.getAccount() != null) {
+            user.setAccount(userVO.getAccount());
         }
-        if (userQuery.getGender() != null) {
-            user.setGender(userQuery.getGender());
+        if (userVO.getGender() != null) {
+            user.setGender(userVO.getGender());
         }
-        if (userQuery.getEmail() != null) {
-            user.setEmail(userQuery.getEmail());
+        if (userVO.getEmail() != null) {
+            user.setEmail(userVO.getEmail());
         }
-        if (userQuery.getPhone() != null) {
-            user.setPhone(userQuery.getPhone());
+        if (userVO.getPhone() != null) {
+            user.setPhone(userVO.getPhone());
         }
         if (user.getBirthday() != null) {
-            user.setBirthday(LocalDateTimeUtil.parse(userQuery.getBirthday()));
+            user.setBirthday(LocalDateTimeUtil.parse(userVO.getBirthday()));
         }
-        if (userQuery.getProfile() != null) {
-            user.setProfile(userQuery.getProfile());
+        if (userVO.getProfile() != null) {
+            user.setProfile(userVO.getProfile());
         }
-        if (userQuery.getProvinceCode() != null && userQuery.getCityCode() != null && userQuery.getDistrictCode() != null) {
-            user.setProvinceCode(userQuery.getProvinceCode()).setCityCode(userQuery.getCityCode()).setDistrictCode(userQuery.getDistrictCode());
+        if (userVO.getProvinceCode() != null && userVO.getCityCode() != null && userVO.getDistrictCode() != null) {
+            user.setProvinceCode(userVO.getProvinceCode()).setCityCode(userVO.getCityCode()).setDistrictCode(userVO.getDistrictCode());
         }
         if (!updateById(user)) {
             throw new ServerException("修改失败");
