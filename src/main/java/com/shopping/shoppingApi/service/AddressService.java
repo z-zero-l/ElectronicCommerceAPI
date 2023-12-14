@@ -16,8 +16,33 @@ public interface AddressService extends IService<Address> {
 
     /**
      * 根据用户Id获取用户地址列表。
+     *
      * @param userId 用户id
      * @return 地址列表
      */
     List<AddressVO> getAddressList(Integer userId);
+
+    /**
+     * 添加地址
+     *
+     * @param userId    用户id
+     * @param addressVO 地址对象
+     */
+    Void addAddress(Integer userId, AddressVO addressVO);
+
+    /**
+     * 更新地址
+     *
+     * @param userId    用户id
+     * @param addressVO 地址对象
+     */
+    Void updateAddress(Integer userId, AddressVO addressVO);
+
+    /**
+     *
+     * @param userId 用户id
+     * @param addressId 地址id
+     */
+    Void deleteAddress(Integer userId, Integer addressId);
+
 }

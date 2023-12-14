@@ -47,7 +47,7 @@ public class CartController {
     }
 
     /**
-     * 更新购物车物品选中状态
+     * 更新购物车物品
      *
      * @param cartVO 购物车信息
      * @return 更新结果

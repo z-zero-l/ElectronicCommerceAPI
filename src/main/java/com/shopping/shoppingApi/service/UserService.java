@@ -49,7 +49,7 @@ public interface UserService extends IService<User> {
     /**
      * 编辑用户信息
      *
-     * @param userQuery 用户信息
+     * @param userVO 用户信息
      * @return 用户信息
      */
     Void editUserInfo(Integer userId, UserVO userVO);

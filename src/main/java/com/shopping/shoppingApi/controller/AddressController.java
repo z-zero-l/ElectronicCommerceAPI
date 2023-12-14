@@ -42,42 +42,74 @@ public class AddressController {
         return Result.ok(addressService.getAddressList(getUserId(request))).responseEntity();
     }
 
-
     /**
-     * 添加用户地址信息表。
+     * 添加用户地址。
      *
-     * @param address 用户地址信息表
-     * @return {@code true} 添加成功，{@code false} 添加失败
+     * @param addressVO 用户地址信息表
      */
     @PostMapping("save")
     @Operation(description = "保存用户地址信息表")
-    public boolean save(@RequestBody @Parameter(description = "用户地址信息表") Address address) {
-        return addressService.save(address);
+    public ResponseEntity<Result<Void>> save(@RequestBody @Parameter(description = "用户地址信息表") AddressVO addressVO) {
+        return Result.ok(addressService.addAddress(getUserId(request), addressVO)).responseEntity();
     }
 
-    /**
-     * 根据主键删除用户地址信息表。
-     *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
-     */
-    @DeleteMapping("remove/{id}")
-    @Operation(description = "根据主键用户地址信息表")
-    public boolean remove(@PathVariable @Parameter(description = "用户地址信息表主键") Serializable id) {
-        return addressService.removeById(id);
-    }
 
     /**
-     * 根据主键更新用户地址信息表。
+     * 更新用户地址信息。
      *
-     * @param address 用户地址信息表
-     * @return {@code true} 更新成功，{@code false} 更新失败
+     * @param addressVO 用户地址信息
      */
     @PutMapping("update")
     @Operation(description = "根据主键更新用户地址信息表")
-    public boolean update(@RequestBody @Parameter(description = "用户地址信息表主键") Address address) {
-        return addressService.updateById(address);
+    public ResponseEntity<Result<Void>> update(@RequestBody @Parameter(description = "用户地址信息表主键") AddressVO addressVO) {
+        return Result.ok(addressService.updateAddress(getUserId(request), addressVO)).responseEntity();
     }
+
+    /**
+     * 删除用户地址信息。
+     *
+     * @param addressId 主键
+     */
+    @DeleteMapping("remove")
+    @Operation(description = "根据主键用户地址信息表")
+    public ResponseEntity<Result<Void>> remove(@Parameter(description = "用户地址信息表主键") Integer addressId) {
+        return Result.ok(addressService.deleteAddress(getUserId(request), addressId)).responseEntity();
+    }
+//    /**
+//     * 添加用户地址信息表。
+//     *
+//     * @param address 用户地址信息表
+//     * @return {@code true} 添加成功，{@code false} 添加失败
+//     */
+//    @PostMapping("save")
+//    @Operation(description = "保存用户地址信息表")
+//    public boolean save(@RequestBody @Parameter(description = "用户地址信息表") Address address) {
+//        return addressService.save(address);
+//    }
+
+//    /**
+//     * 根据主键删除用户地址信息表。
+//     *
+//     * @param id 主键
+//     * @return {@code true} 删除成功，{@code false} 删除失败
+//     */
+//    @DeleteMapping("remove/{id}")
+//    @Operation(description = "根据主键用户地址信息表")
+//    public boolean remove(@PathVariable @Parameter(description = "用户地址信息表主键") Serializable id) {
+//        return addressService.removeById(id);
+//    }
+//
+//    /**
+//     * 根据主键更新用户地址信息表。
+//     *
+//     * @param address 用户地址信息表
+//     * @return {@code true} 更新成功，{@code false} 更新失败
+//     */
+//    @PutMapping("update")
+//    @Operation(description = "根据主键更新用户地址信息表")
+//    public boolean update(@RequestBody @Parameter(description = "用户地址信息表主键") Address address) {
+//        return addressService.updateById(address);
+//    }
 
 //    /**
 //     * 查询所有用户地址信息表。
