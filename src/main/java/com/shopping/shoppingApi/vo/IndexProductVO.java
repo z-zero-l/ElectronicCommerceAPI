@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Accessors(chain = true)
@@ -26,6 +27,8 @@ public class IndexProductVO implements Serializable {
     private Double price;
     @Schema(description = "是否热门")
     private Boolean isHot;
+    @Schema(description = "总销量")
+    private BigDecimal totalSaleAmount;
     @Schema(description = "是否新品")
     private Boolean isNew;
     @Schema(description = "是否促销")
