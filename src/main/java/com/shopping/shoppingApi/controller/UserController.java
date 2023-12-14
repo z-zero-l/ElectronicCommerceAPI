@@ -4,6 +4,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.query.UserLoginQuery;
+import com.shopping.shoppingApi.query.UserQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.service.UserService;
 import com.shopping.shoppingApi.vo.LoginResultVO;
@@ -91,15 +92,14 @@ public class UserController {
     /**
      * 修改用户信息
      *
-     * @param userVO 用户信息
+     * @param userQuery 用户信息
      * @return 用户信息
      */
     @Operation(summary = "修改用户信息")
     @PutMapping("/profile")
-    private Result<UserVO> editUserInfo(@RequestBody @Validated UserVO userVO) {
+    private ResponseEntity<Result<Void>> editUserInfo(@RequestBody @Validated UserQuery userQuery) {
         Integer userId = getUserId(request);
-        UserVO userInfo = userService.editUserInfo(userId, userVO);
-        return Result.ok(userInfo);
+        return Result.ok(userService.editUserInfo(userId, userQuery)).responseEntity();
     }
 
     /**
@@ -110,10 +110,10 @@ public class UserController {
      */
     @Operation(summary = "修改用户头像")
     @PostMapping("/profile/avatar")
-    private Result<String> editUserAvatar(MultipartFile file) {
+    private ResponseEntity<Result<String>> editUserAvatar(MultipartFile file) {
         Integer userId = getUserId(request);
         String uploadFileName = userService.editUserAvatar(userId, file);
-        return Result.ok(uploadFileName);
+        return Result.ok(uploadFileName).responseEntity();
     }
 
     /**
