@@ -71,16 +71,27 @@ public class CartController {
     }
 
     /**
-     * 根据主键删除购物车。
+     * 删除购物车商品。
      *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
+     * @param cartId 主键
      */
-    @DeleteMapping("remove/{id}")
-    @Operation(description = "根据主键购物车")
-    public boolean remove(@PathVariable @Parameter(description = "购物车主键") Serializable id) {
-        return cartService.removeById(id);
+    @DeleteMapping("remove")
+    @Operation(description = "删除购物车商品",summary = "根据购物车id删除购物车商品")
+    public ResponseEntity<Result<Void>> remove(@RequestParam Integer cartId) {
+        return Result.ok(cartService.deleteCartItem(getUserId(request),cartId)).responseEntity();
     }
+
+//    /**
+//     * 根据主键删除购物车。
+//     *
+//     * @param id 主键
+//     * @return {@code true} 删除成功，{@code false} 删除失败
+//     */
+//    @DeleteMapping("remove/{id}")
+//    @Operation(description = "根据主键购物车")
+//    public boolean remove(@PathVariable @Parameter(description = "购物车主键") Serializable id) {
+//        return cartService.removeById(id);
+//    }
 
 //    /**
 //     * 根据主键更新购物车。

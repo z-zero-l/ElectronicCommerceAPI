@@ -29,4 +29,12 @@ public interface CartService extends IService<Cart> {
      * @param cartVO     购物车
      */
     Void updateCart(Integer userId, CartVO cartVO);
+
+    /**
+     * 删除购物车商品
+     *
+     * @param userId 用户id
+     * @param cartId 购物车id
+     */
+    Void deleteCartItem(Integer userId, Integer cartId);
 }

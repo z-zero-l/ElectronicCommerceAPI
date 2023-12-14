@@ -104,4 +104,21 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         }
         return null;
     }
+
+    /**
+     * 删除购物车商品
+     *
+     * @param userId 用户id
+     * @param cartId 购物车id
+     */
+    @Override
+    public Void deleteCartItem(Integer userId, Integer cartId) {
+        if (!exists(QueryChain.create().where(CART.USER_ID.eq(userId)).where(CART.CART_ID.eq(cartId)))) {
+            throw new ServerException("您的购物车不存在此商品");
+        }
+        if (!removeById(cartId)) {
+            throw new ServerException("删除购物车失败");
+        }
+        return null;
+    }
 }
