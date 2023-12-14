@@ -3,6 +3,7 @@ package com.shopping.shoppingApi.service;
 import com.mybatisflex.core.service.IService;
 import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.query.UserLoginQuery;
+import com.shopping.shoppingApi.query.UserQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.vo.LoginResultVO;
 import com.shopping.shoppingApi.vo.UserVO;
@@ -49,10 +50,10 @@ public interface UserService extends IService<User> {
     /**
      * 编辑用户信息
      *
-     * @param userVO 用户信息
+     * @param userQuery 用户信息
      * @return 用户信息
      */
-    UserVO editUserInfo(Integer userId, UserVO userVO);
+    Void editUserInfo(Integer userId, UserQuery userQuery);
 
     /**
      * 编辑用户头像
