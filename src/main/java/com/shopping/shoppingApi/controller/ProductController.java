@@ -53,7 +53,19 @@ public class ProductController {
     @GetMapping("indexList")
     @Operation(description = "首页商品列表", summary = "查询首页列表")
     public ResponseEntity<Result<List<IndexProductVO>>> getIndexProductList() {
-        return Result.ok(productService.getIndexProductList()).responseEntity();
+        return Result.ok(productService.getProductList(null)).responseEntity();
+    }
+
+    /**
+     * 根据二级分类获取商品列表
+     *
+     * @param categoryId 二级分类id
+     * @return 商品列表
+     */
+    @GetMapping("category/{categoryId}")
+    @Operation(summary = "根据二级分类获取商品列表", description = "根据二级分类获取商品列表")
+    public ResponseEntity<Result<List<IndexProductVO>>> getProductListByCategoryId(@PathVariable Integer categoryId) {
+        return Result.ok(productService.getProductList(categoryId)).responseEntity();
     }
 
     /**

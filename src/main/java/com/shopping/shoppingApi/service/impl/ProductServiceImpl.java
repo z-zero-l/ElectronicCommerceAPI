@@ -3,7 +3,6 @@ package com.shopping.shoppingApi.service.impl;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryMethods;
 import com.mybatisflex.core.query.QueryWrapper;
-import com.mybatisflex.spring.service.impl.CacheableServiceImpl;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Category;
@@ -12,7 +11,6 @@ import com.shopping.shoppingApi.mapper.*;
 import com.shopping.shoppingApi.service.ProductService;
 import com.shopping.shoppingApi.vo.*;
 import lombok.AllArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,9 +20,11 @@ import java.util.List;
 
 import static com.mybatisflex.core.query.QueryMethods.sum;
 import static com.shopping.shoppingApi.entity.table.BusinessTableDef.BUSINESS;
+import static com.shopping.shoppingApi.entity.table.CategoryTableDef.CATEGORY;
 import static com.shopping.shoppingApi.entity.table.CollectTableDef.COLLECT;
 import static com.shopping.shoppingApi.entity.table.CommentTableDef.COMMENT;
 import static com.shopping.shoppingApi.entity.table.OrderItemTableDef.ORDER_ITEM;
+import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
 import static com.shopping.shoppingApi.entity.table.ProductSpecTableDef.PRODUCT_SPEC;
 import static com.shopping.shoppingApi.entity.table.ProductTableDef.PRODUCT;
 
@@ -152,18 +152,31 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     /**
-     * 获取首页商品列表
+     * 获取商品列表
      *
-     * @return 首页商品列表
+     * @return 首页列表
      */
     @Override
-    public List<IndexProductVO> getIndexProductList() {
+    public List<IndexProductVO> getProductList(Integer cateId) {
+        QueryWrapper productQueryWrapper = new QueryWrapper().where(PRODUCT.PRODUCT_STATUS.eq(1)).orderBy(QueryMethods.rand().asc());
+        if (cateId != null) {
+            if (!QueryChain.of(categoryMapper).where(CATEGORY.CATEGORY_ID.eq(cateId)).exists()) {
+                throw new ServerException("分类不存在");
+            }
+            if (QueryChain.of(categoryMapper).where(CATEGORY.CATEGORY_ID.eq(cateId)).where(CATEGORY.PARENT_ID.eq(0)).exists()) {
+                throw new ServerException("请选择子分类");
+            }
+            productQueryWrapper.where(PRODUCT.CATE_SEC_ID.eq(cateId));
+        }
         ArrayList<IndexProductVO> indexProductVOS = new ArrayList<>();
-        list(new QueryWrapper().where(PRODUCT.PRODUCT_STATUS.eq(1)).orderBy(QueryMethods.rand().asc()).limit(48))
+        list(productQueryWrapper.limit(48))
                 .forEach(product -> {
-                    BigDecimal isHot = ((BigDecimal) QueryChain.of(orderItemMapper)
+                    BigDecimal weekSellAmount = ((BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
+                            .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(5)))
+                            .where(ORDER_ITEM.CREATE_TIME.between(LocalDateTime.now().minusDays(7), LocalDateTime.now()))
                             .obj());
                     indexProductVOS.add(IndexProductVO.create()
                             .setProductId(product.getProductId()) // 主键
@@ -174,7 +187,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                             .setFreight(product.getFreight()) // 运费
                             .setPrice((Double) QueryChain.of(productSpecMapper).select(QueryMethods.min(PRODUCT_SPEC.SELL_PRICE)).where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId())).obj()) // 商品价格
                             .setProductCover(product.getProductCover()) // 商品封面图片
-                            .setIsHot(isHot != null && (isHot.intValue() > 10)) // 是否热门
+                            .setIsHot(weekSellAmount != null && (weekSellAmount.intValue() > 10)) // 是否热门
                             .setIsNew(
                                     QueryChain.of(productSpecMapper)
                                             .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))

@@ -28,6 +28,6 @@ public interface ProductService extends IService<Product> {
      *
      * @return 首页商品列表
      */
-    List<IndexProductVO> getIndexProductList();
+    List<IndexProductVO> getProductList(Integer cateId);
 
 }
