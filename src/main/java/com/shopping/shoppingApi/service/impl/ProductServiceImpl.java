@@ -172,15 +172,18 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         ArrayList<IndexProductVO> indexProductVOS = new ArrayList<>();
         list(productQueryWrapper.limit(48))
                 .forEach(product -> {
-                    QueryChain<OrderItem> sellAmountQuery = QueryChain.of(orderItemMapper)
+                    BigDecimal totalSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
                             .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
-                            .where(ORDER_ITEM.STATUS.notIn(List.of(5)));
-                    BigDecimal weekSellAmount = (BigDecimal) sellAmountQuery
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(0,5))).obj();
+                    BigDecimal weekSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
+                            .select(sum(ORDER_ITEM.AMOUNT))
+                            .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
+                            .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(0,5)))
                             .where(ORDER_ITEM.CREATE_TIME.between(LocalDateTime.now().minusDays(7), LocalDateTime.now()))
                             .obj();
-                    BigDecimal totalSellAmount = (BigDecimal) sellAmountQuery.obj();
                     indexProductVOS.add(IndexProductVO.create()
                             .setProductId(product.getProductId()) // 主键
                             .setProductName(product.getProductName()) // 商品名称
@@ -191,7 +194,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                             .setPrice((Double) QueryChain.of(productSpecMapper).select(QueryMethods.min(PRODUCT_SPEC.SELL_PRICE)).where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId())).obj()) // 商品价格
                             .setProductCover(product.getProductCover()) // 商品封面图片
                             .setIsHot(weekSellAmount != null && (weekSellAmount.intValue() > 10)) // 是否热门
-                            .setTotalSaleAmount(totalSellAmount)
+                            .setTotalSaleAmount(totalSellAmount==null?0:totalSellAmount.intValue())
                             .setIsNew(
                                     QueryChain.of(productSpecMapper)
                                             .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))

@@ -28,7 +28,7 @@ public class IndexProductVO implements Serializable {
     @Schema(description = "是否热门")
     private Boolean isHot;
     @Schema(description = "总销量")
-    private BigDecimal totalSaleAmount;
+    private Integer totalSaleAmount;
     @Schema(description = "是否新品")
     private Boolean isNew;
     @Schema(description = "是否促销")
