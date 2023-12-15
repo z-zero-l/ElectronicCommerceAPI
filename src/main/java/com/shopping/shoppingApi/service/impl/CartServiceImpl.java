@@ -89,8 +89,10 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             throw new ServerException("您的购物车不存在此商品");
         }
         Cart cart = getById(cartVO.getCartId());
-        if (cartVO.getSelected() == 1 || cartVO.getSelected() == 0) {
-            cart.setSelected(cartVO.getSelected());
+        if (cartVO.getSelected() != null) {
+            if (cartVO.getSelected() == 1 || cartVO.getSelected() == 0) {
+                cart.setSelected(cartVO.getSelected());
+            }
         }
         if (cartVO.getQuantity() != null && cartVO.getQuantity() > 0) {
             Integer productStock = (Integer) QueryChain.of(productSpecMapper).select(PRODUCT_SPEC.STOCK).where(PRODUCT_SPEC.ID.eq(cart.getProductId())).obj();
