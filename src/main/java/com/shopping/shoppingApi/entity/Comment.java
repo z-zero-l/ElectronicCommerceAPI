@@ -65,7 +65,7 @@ public class Comment extends Model<Comment> {
     /**
      * 评论时间
      */
-    @Column(onInsertValue = "now()", isLarge = true)
+    @Column(onInsertValue = "now()")
     @Schema(description = "评论时间")
     private LocalDateTime createTime;
 

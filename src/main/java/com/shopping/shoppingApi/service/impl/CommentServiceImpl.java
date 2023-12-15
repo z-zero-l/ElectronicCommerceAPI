@@ -8,6 +8,7 @@ import com.shopping.shoppingApi.entity.Comment;
 import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.mapper.CommentMapper;
 import com.shopping.shoppingApi.mapper.UserMapper;
+import com.shopping.shoppingApi.query.CommentQuery;
 import com.shopping.shoppingApi.service.CommentService;
 import com.shopping.shoppingApi.vo.CommentChildVO;
 import com.shopping.shoppingApi.vo.CommentVO;
@@ -67,5 +68,27 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                             .setReplyList(commentChildVOS));
                 });
         return commentVOS;
+    }
+
+    /**
+     * 添加评论
+     *
+     * @param userId       用户id
+     * @param commentQuery 评论信息
+     */
+    @Override
+    public Void addComment(Integer userId, CommentQuery commentQuery) {
+        if (commentQuery.getToCommentId() == null) {
+            commentQuery.setToCommentId(0);
+        }
+        Comment comment = Comment.create()
+                .setUserId(userId)
+                .setProductId(commentQuery.getProductId())
+                .setCommentContent(commentQuery.getCommentContent())
+                .setToCommentId(commentQuery.getToCommentId());
+        if (!save(comment)) {
+            throw new ServerException("添加评论失败");
+        }
+        return null;
     }
 }
