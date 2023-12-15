@@ -84,7 +84,7 @@ public class Address extends Model<Address> {
      * 逻辑删除(0-未删除 1-已删除)
      */
     @Schema(description = "逻辑删除(0-未删除 1-已删除)")
-    private Integer deteleFlag;
+    private Integer deleteFlag;
 
     /**
      * 创建时间
