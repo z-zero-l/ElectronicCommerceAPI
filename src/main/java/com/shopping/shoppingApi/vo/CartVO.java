@@ -23,6 +23,8 @@ public class CartVO implements Serializable {
     private String specImg;
     @Schema(description = "数量")
     private Integer quantity;
+    @Schema(description = "库存")
+    private Integer stock;
     @Schema(description = "加入时商品价格")
     private Double joinPrice;
     @Schema(description = "当前售价")

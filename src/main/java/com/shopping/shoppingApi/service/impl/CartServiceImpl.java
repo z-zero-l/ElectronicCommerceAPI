@@ -55,6 +55,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
                 removeById(cart.getCartId());
                 continue;
             }
+            Integer stock = (Integer) QueryChain.of(productSpecMapper).select(PRODUCT_SPEC.STOCK).where(PRODUCT_SPEC.ID.eq(cart.getSpecId())).obj();
             CartVO cartVO = CartVO.create()
                     .setCartId(cart.getCartId())
                     .setProductId(product.getProductId())
@@ -63,6 +64,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
                     .setSpecName(productSpec.getSpecName())
                     .setSpecImg(productSpec.getSpecImg())
                     .setQuantity(cart.getQuantity())
+                    .setStock(stock)
                     .setJoinPrice(cart.getJoinPrice())
                     .setSellPrice(productSpec.getSellPrice())
                     .setProductStatus(product.getProductStatus())
