@@ -31,7 +31,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
     @Override
     public List<AddressVO> getAddressList(Integer userId) {
         ArrayList<AddressVO> addressVOS = new ArrayList<>();
-        list(QueryChain.create().where(ADDRESS.USER_ID.eq(userId))).forEach(address -> addressVOS.add(AddressVO.create()
+        list(QueryChain.create().where(ADDRESS.USER_ID.eq(userId)).orderBy(ADDRESS.IS_DEFAULT.desc()).orderBy(ADDRESS.UPDATE_TIME.desc())).forEach(address -> addressVOS.add(AddressVO.create()
                 .setId(address.getId())
                 .setReceiver(address.getReceiver())
                 .setContact(address.getContact())
