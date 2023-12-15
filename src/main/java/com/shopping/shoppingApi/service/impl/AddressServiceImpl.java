@@ -140,8 +140,8 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
                 .setDistrictCode(addressVO.getDistrictCode())
                 .setAddress(addressVO.getAddress())
                 .setIsDefault(addressVO.getIsDefault());
-        if (!save(address)) {
-            throw new RuntimeException("添加地址失败");
+        if (!updateById(address)) {
+            throw new RuntimeException("更新地址失败");
         }
         return null;
     }
