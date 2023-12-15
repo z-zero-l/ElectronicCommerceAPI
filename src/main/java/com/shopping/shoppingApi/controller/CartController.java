@@ -3,6 +3,7 @@ package com.shopping.shoppingApi.controller;
 import com.mybatisflex.core.paginate.Page;
 import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.entity.Cart;
+import com.shopping.shoppingApi.query.CartQuery;
 import com.shopping.shoppingApi.service.CartService;
 import com.shopping.shoppingApi.vo.CartVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,7 +66,7 @@ public class CartController {
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("save")
-    @Operation(description = "保存购物车")
+    @Operation(description = "保存购物车",summary = "保存购物车")
     public boolean save(@RequestBody @Parameter(description = "购物车") Cart cart) {
         return cartService.save(cart);
     }
@@ -79,5 +80,16 @@ public class CartController {
     @Operation(description = "删除购物车商品",summary = "根据购物车id删除购物车商品")
     public ResponseEntity<Result<Void>> remove(@RequestParam Integer cartId) {
         return Result.ok(cartService.deleteCartItem(getUserId(request),cartId)).responseEntity();
+    }
+
+    /**
+     * 添加购物车
+     *
+     * @param cartQuery 购物车信息
+     */
+    @PostMapping("add")
+    @Operation(summary = "添加购物车", description = "添加购物车")
+    public ResponseEntity<Result<Void>> addCart(@RequestBody CartQuery cartQuery) {
+        return Result.ok(cartService.addCart(getUserId(request), cartQuery)).responseEntity();
     }
 }

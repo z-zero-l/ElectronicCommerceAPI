@@ -10,6 +10,7 @@ import com.shopping.shoppingApi.mapper.CartMapper;
 import com.shopping.shoppingApi.mapper.ProductMapper;
 import com.shopping.shoppingApi.mapper.ProductSpecMapper;
 import com.shopping.shoppingApi.mapper.UserMapper;
+import com.shopping.shoppingApi.query.CartQuery;
 import com.shopping.shoppingApi.service.CartService;
 import com.shopping.shoppingApi.vo.CartVO;
 import lombok.AllArgsConstructor;
@@ -122,6 +123,53 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         }
         if (!removeById(cartId)) {
             throw new ServerException("删除购物车失败");
+        }
+        return null;
+    }
+
+    /**
+     * 添加购物车
+     *
+     * @param userId    用户id
+     * @param cartQuery 添加商品信息
+     */
+    @Override
+    public Void addCart(Integer userId, CartQuery cartQuery) {
+        Cart cart = getOne(QueryChain.create().where(CART.USER_ID.eq(userId)).where(CART.PRODUCT_ID.eq(cartQuery.getId())));
+        Integer productStock = (Integer) QueryChain.of(productSpecMapper).select(PRODUCT_SPEC.STOCK).where(PRODUCT_SPEC.ID.eq(cart.getProductId())).obj();
+        if (cart == null) {
+            if (cartQuery.getCount() > 0) {
+                ProductSpec productSpec = productSpecMapper.selectOneById(cartQuery.getId());
+                Product product = productMapper.selectOneById(productSpec.getProductId());
+                if (product == null || productSpec == null) {
+                    throw new ServerException("商品不存在");
+                }
+                if (cartQuery.getCount() < 1) {
+                    throw new ServerException("数量不能小于1");
+                }
+                if (productStock < cartQuery.getCount()) {
+                    throw new ServerException("库存不足");
+                }
+
+                cart = Cart.create()
+                        .setUserId(userId)
+                        .setProductId(productSpec.getProductId())
+                        .setSpecId(productSpec.getId())
+                        .setQuantity(cartQuery.getCount())
+                        .setJoinPrice(productSpec.getListPrice())
+                        .setSelected(1);
+            }
+        } else {
+            if (cartQuery.getCount() < 1) {
+                throw new ServerException("数量不能小于1");
+            }
+            if (productStock < cart.getQuantity() + cartQuery.getCount()) {
+                throw new ServerException("库存不足");
+            }
+            cart.setQuantity(cart.getQuantity() + cartQuery.getCount());
+        }
+        if (!saveOrUpdate(cart)) {
+            throw new ServerException("添加购物车失败");
         }
         return null;
     }

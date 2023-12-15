@@ -2,6 +2,7 @@ package com.shopping.shoppingApi.service;
 
 import com.mybatisflex.core.service.IService;
 import com.shopping.shoppingApi.entity.Cart;
+import com.shopping.shoppingApi.query.CartQuery;
 import com.shopping.shoppingApi.vo.CartVO;
 
 import java.util.List;
@@ -37,4 +38,12 @@ public interface CartService extends IService<Cart> {
      * @param cartId 购物车id
      */
     Void deleteCartItem(Integer userId, Integer cartId);
+
+    /**
+     * 添加购物车
+     *
+     * @param userId 用户id
+     * @param cartQuery 添加商品信息
+     */
+    Void addCart(Integer userId, CartQuery cartQuery);
 }
