@@ -4,15 +4,15 @@ import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryMethods;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Business;
 import com.shopping.shoppingApi.mapper.BusinessMapper;
 import com.shopping.shoppingApi.mapper.OrderItemMapper;
 import com.shopping.shoppingApi.mapper.ProductMapper;
 import com.shopping.shoppingApi.mapper.ProductSpecMapper;
 import com.shopping.shoppingApi.service.BusinessService;
+import com.shopping.shoppingApi.vo.BusinessListVO;
 import com.shopping.shoppingApi.vo.BusinessVO;
-import com.shopping.shoppingApi.vo.IndexProductVO;
+import com.shopping.shoppingApi.vo.ProductListVO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +40,7 @@ public class BusinessServiceImpl extends ServiceImpl<BusinessMapper, Business> i
     private ProductMapper productMapper;
     private OrderItemMapper orderItemMapper;
     private ProductSpecMapper productSpecMapper;
+
     /**
      * 获取店铺信息
      *
@@ -48,14 +49,14 @@ public class BusinessServiceImpl extends ServiceImpl<BusinessMapper, Business> i
      */
     @Override
     public BusinessVO getBusinessInfo(Integer businessId) {
-        ArrayList<IndexProductVO> indexProductVOS = new ArrayList<>();
+        ArrayList<ProductListVO> productListVOS = new ArrayList<>();
         productMapper.selectListByQuery(QueryChain.create().where(PRODUCT.BUSINESS_ID.eq(businessId)))
                 .forEach(product -> {
                     BigDecimal isHot = ((BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
                             .obj());
-                    indexProductVOS.add(IndexProductVO.create()
+                    productListVOS.add(ProductListVO.create()
                             .setProductId(product.getProductId()) // 主键
                             .setProductName(product.getProductName()) // 商品名称
                             .setBusinessId(product.getBusinessId())
@@ -86,7 +87,28 @@ public class BusinessServiceImpl extends ServiceImpl<BusinessMapper, Business> i
                 .setBusinessPhone(business.getBusinessPhone())
                 .setBusinessProfile(business.getBusinessProfile())
                 .setBusinessAvatar(business.getBusinessAvatar())
-                .setProductList(indexProductVOS);
+                .setProductList(productListVOS);
 
+    }
+
+    /**
+     * 搜索店铺
+     *
+     * @param keyword 关键字
+     * @return 店铺信息列表
+     */
+    @Override
+    public List<BusinessListVO> searchBusiness(String keyword) {
+        ArrayList<BusinessListVO> businessListVOS = new ArrayList<>();
+        list(QueryChain.create().where(BUSINESS.BUSINESS_NAME.like("%" + keyword + "%").or(BUSINESS.BUSINESS_PROFILE.like("%" + keyword + "%"))).limit(48))
+                .forEach(business -> {
+                    businessListVOS.add(BusinessListVO.create()
+                            .setId(business.getId())
+                            .setBusinessName(business.getBusinessName())
+                            .setBusinessAvatar(business.getBusinessAvatar())
+                            .setBusinessProfile(business.getBusinessProfile())
+                            .setBusinessYears(business.getCreateTime().toLocalDate().until(LocalDateTime.now().toLocalDate()).getYears()));
+                });
+        return businessListVOS;
     }
 }

@@ -6,7 +6,6 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Category;
-import com.shopping.shoppingApi.entity.OrderItem;
 import com.shopping.shoppingApi.entity.Product;
 import com.shopping.shoppingApi.mapper.*;
 import com.shopping.shoppingApi.service.ProductService;
@@ -158,7 +157,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 首页列表
      */
     @Override
-    public List<IndexProductVO> getProductList(Integer cateId) {
+    public List<ProductListVO> getProductList(Integer cateId) {
         QueryWrapper productQueryWrapper = new QueryWrapper().where(PRODUCT.PRODUCT_STATUS.eq(1)).orderBy(QueryMethods.rand().asc());
         if (cateId != null) {
             if (!QueryChain.of(categoryMapper).where(CATEGORY.CATEGORY_ID.eq(cateId)).exists()) {
@@ -169,22 +168,22 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             }
             productQueryWrapper.where(PRODUCT.CATE_SEC_ID.eq(cateId));
         }
-        ArrayList<IndexProductVO> indexProductVOS = new ArrayList<>();
+        ArrayList<ProductListVO> productListVOS = new ArrayList<>();
         list(productQueryWrapper.limit(48))
                 .forEach(product -> {
                     BigDecimal totalSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
                             .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
-                            .where(ORDER_ITEM.STATUS.notIn(List.of(0,5))).obj();
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(0, 5))).obj();
                     BigDecimal weekSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
                             .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
-                            .where(ORDER_ITEM.STATUS.notIn(List.of(0,5)))
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(0, 5)))
                             .where(ORDER_ITEM.CREATE_TIME.between(LocalDateTime.now().minusDays(7), LocalDateTime.now()))
                             .obj();
-                    indexProductVOS.add(IndexProductVO.create()
+                    productListVOS.add(ProductListVO.create()
                             .setProductId(product.getProductId()) // 主键
                             .setProductName(product.getProductName()) // 商品名称
                             .setBusinessId(product.getBusinessId())
@@ -194,7 +193,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                             .setPrice((Double) QueryChain.of(productSpecMapper).select(QueryMethods.min(PRODUCT_SPEC.SELL_PRICE)).where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId())).obj()) // 商品价格
                             .setProductCover(product.getProductCover()) // 商品封面图片
                             .setIsHot(weekSellAmount != null && (weekSellAmount.intValue() > 10)) // 是否热门
-                            .setTotalSaleAmount(totalSellAmount==null?0:totalSellAmount.intValue())
+                            .setTotalSaleAmount(totalSellAmount == null ? 0 : totalSellAmount.intValue())
                             .setIsNew(
                                     QueryChain.of(productSpecMapper)
                                             .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))
@@ -209,6 +208,60 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                             ) // 是否促销
                     );
                 });
-        return indexProductVOS;
+        return productListVOS;
+    }
+
+    /**
+     * 商品搜索
+     *
+     * @param keyword 关键字
+     * @return 商品列表
+     */
+    @Override
+    public List<ProductListVO> searchProduct(String keyword) {
+        if (keyword.isBlank()) {
+            throw new ServerException("搜索关键字不能为空");
+        }
+        ArrayList<ProductListVO> productListVOS = new ArrayList<>();
+        list(QueryChain.create().where(PRODUCT.PRODUCT_NAME.like("%" + keyword + "%")).orderBy(QueryMethods.rand().asc()).limit(48))
+                .forEach(product -> {
+                    BigDecimal totalSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
+                            .select(sum(ORDER_ITEM.AMOUNT))
+                            .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
+                            .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(0, 5))).obj();
+                    BigDecimal weekSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
+                            .select(sum(ORDER_ITEM.AMOUNT))
+                            .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
+                            .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(0, 5)))
+                            .where(ORDER_ITEM.CREATE_TIME.between(LocalDateTime.now().minusDays(7), LocalDateTime.now()))
+                            .obj();
+                    productListVOS.add(ProductListVO.create()
+                            .setProductId(product.getProductId()) // 主键
+                            .setProductName(product.getProductName()) // 商品名称
+                            .setBusinessId(product.getBusinessId())
+                            .setBusiness((String) businessMapper.selectObjectByQuery(
+                                    new QueryWrapper().select(BUSINESS.BUSINESS_NAME).where(BUSINESS.ID.eq(product.getBusinessId())))) // 所属店铺
+                            .setFreight(product.getFreight()) // 运费
+                            .setPrice((Double) QueryChain.of(productSpecMapper).select(QueryMethods.min(PRODUCT_SPEC.SELL_PRICE)).where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId())).obj()) // 商品价格
+                            .setProductCover(product.getProductCover()) // 商品封面图片
+                            .setIsHot(weekSellAmount != null && (weekSellAmount.intValue() > 10)) // 是否热门
+                            .setTotalSaleAmount(totalSellAmount == null ? 0 : totalSellAmount.intValue())
+                            .setIsNew(
+                                    QueryChain.of(productSpecMapper)
+                                            .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))
+                                            .where(PRODUCT_SPEC.CREATE_TIME.between(LocalDateTime.now().minusDays(7), LocalDateTime.now()))
+                                            .count() > 0
+                            ) // 是否新品
+                            .setIsSale(
+                                    QueryChain.of(productSpecMapper)
+                                            .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))
+                                            .where(PRODUCT_SPEC.SELL_PRICE.lt(PRODUCT_SPEC.LIST_PRICE.multiply(0.7)))
+                                            .count() > 0
+                            ) // 是否促销
+                    );
+                });
+        return productListVOS;
     }
 }

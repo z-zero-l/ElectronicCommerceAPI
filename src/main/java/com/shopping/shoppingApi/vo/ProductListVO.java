@@ -5,12 +5,10 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.List;
 
 @Accessors(chain = true)
 @Data(staticConstructor = "create")
-public class IndexProductVO implements Serializable {
+public class ProductListVO implements Serializable {
     @Schema(description = "主键")
     private Integer productId;
     @Schema(description = "商品名称")

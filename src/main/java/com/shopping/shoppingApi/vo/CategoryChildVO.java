@@ -19,5 +19,5 @@ public class CategoryChildVO implements Serializable {
     @Schema(description = "颜色标识")
     private String cateColor;
     @Schema(description = "商品列表")
-    private List<IndexProductVO> productList;
+    private List<ProductListVO> productList;
 }

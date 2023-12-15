@@ -10,7 +10,7 @@ import com.shopping.shoppingApi.mapper.*;
 import com.shopping.shoppingApi.service.CategoryService;
 import com.shopping.shoppingApi.vo.CategoryChildVO;
 import com.shopping.shoppingApi.vo.CategoryVO;
-import com.shopping.shoppingApi.vo.IndexProductVO;
+import com.shopping.shoppingApi.vo.ProductListVO;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
@@ -99,7 +99,7 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
         }
         List<CategoryChildVO> categoryVOS = new ArrayList<>();
         for (Category category : list) {
-            ArrayList<IndexProductVO> indexProductVOS = new ArrayList<>();
+            ArrayList<ProductListVO> productListVOS = new ArrayList<>();
             productMapper.selectListByQuery(new QueryWrapper().where(PRODUCT.PRODUCT_STATUS.eq(1)).where(PRODUCT.CATE_SEC_ID.eq(category.getCategoryId())).orderBy(QueryMethods.rand().asc()).limit(4))
                     .forEach(product -> {
                         BigDecimal weekSellAmount = ((BigDecimal) QueryChain.of(orderItemMapper)
@@ -109,7 +109,7 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
                                 .where(ORDER_ITEM.STATUS.notIn(List.of(5)))
                                 .where(ORDER_ITEM.CREATE_TIME.between(LocalDateTime.now().minusDays(7), LocalDateTime.now()))
                                 .obj());
-                        indexProductVOS.add(IndexProductVO.create()
+                        productListVOS.add(ProductListVO.create()
                                 .setProductId(product.getProductId()) // 主键
                                 .setProductName(product.getProductName()) // 商品名称
                                 .setBusinessId(product.getBusinessId())
@@ -139,7 +139,7 @@ public class CategoryServiceImpl extends CacheableServiceImpl<CategoryMapper, Ca
                     .setCateName(category.getCateName())
                     .setCateIcon(category.getCateIcon())
                     .setCateColor(category.getCateColor())
-                    .setProductList(indexProductVOS));
+                    .setProductList(productListVOS));
         }
         return categoryVOS;
     }
