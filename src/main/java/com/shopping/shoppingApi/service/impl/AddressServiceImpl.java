@@ -51,22 +51,22 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
      */
     @Override
     public Void addAddress(Integer userId, AddressVO addressVO) {
-        if (addressVO.getReceiver()!=null) {
+        if (addressVO.getReceiver()==null) {
             throw new RuntimeException("收件人不能为空");
         }
-        if (addressVO.getContact()!=null) {
+        if (addressVO.getContact()==null) {
             throw new RuntimeException("联系方式不能为空");
         }
-        if (addressVO.getProvinceCode()!=null) {
+        if (addressVO.getProvinceCode()==null) {
             throw new RuntimeException("省份编码不能为空");
         }
-        if (addressVO.getCityCode()!=null) {
+        if (addressVO.getCityCode()==null) {
             throw new RuntimeException("城市编码不能为空");
         }
-        if (addressVO.getDistrictCode()!=null) {
+        if (addressVO.getDistrictCode()==null) {
             throw new RuntimeException("区县编码不能为空");
         }
-        if (addressVO.getAddress()!=null) {
+        if (addressVO.getAddress()==null) {
             throw new RuntimeException("详细地址不能为空");
         }
         if (addressVO.getIsDefault()==null) {
@@ -104,22 +104,22 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         if(!exists(QueryChain.create().where(ADDRESS.ID.eq(addressVO.getId())).and(ADDRESS.USER_ID.eq(userId)))){
             throw new RuntimeException("地址不存在");
         }
-        if (addressVO.getReceiver()!=null) {
+        if (addressVO.getReceiver()==null) {
             throw new RuntimeException("收件人不能为空");
         }
-        if (addressVO.getContact()!=null) {
+        if (addressVO.getContact()==null) {
             throw new RuntimeException("联系方式不能为空");
         }
-        if (addressVO.getProvinceCode()!=null) {
+        if (addressVO.getProvinceCode()==null) {
             throw new RuntimeException("省份编码不能为空");
         }
-        if (addressVO.getCityCode()!=null) {
+        if (addressVO.getCityCode()==null) {
             throw new RuntimeException("城市编码不能为空");
         }
-        if (addressVO.getDistrictCode()!=null) {
+        if (addressVO.getDistrictCode()==null) {
             throw new RuntimeException("区县编码不能为空");
         }
-        if (addressVO.getAddress()!=null) {
+        if (addressVO.getAddress()==null) {
             throw new RuntimeException("详细地址不能为空");
         }
         if (addressVO.getIsDefault()==null) {
