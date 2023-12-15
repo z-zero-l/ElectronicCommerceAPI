@@ -1,7 +1,6 @@
 package com.shopping.shoppingApi.controller;
 
 import com.shopping.shoppingApi.common.result.Result;
-import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.service.UserService;
@@ -17,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.Serializable;
 
 import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
 
@@ -92,8 +89,8 @@ public class UserController {
      * @param userVO 用户信息
      * @return 用户信息
      */
-    @Operation(summary = "修改用户信息")
     @PutMapping("/profile")
+    @Operation(summary = "修改用户信息",description = "修改用户信息")
     private ResponseEntity<Result<Void>> editUserInfo(@RequestBody @Validated UserVO userVO) {
         Integer userId = getUserId(request);
         return Result.ok(userService.editUserInfo(userId, userVO)).responseEntity();
@@ -105,47 +102,12 @@ public class UserController {
      * @param file 头像文件
      * @return 头像地址
      */
-    @Operation(summary = "修改用户头像")
     @PostMapping("/profile/avatar")
+    @Operation(summary = "修改用户头像",description = "修改用户头像")
     private ResponseEntity<Result<String>> editUserAvatar(MultipartFile file) {
         Integer userId = getUserId(request);
         String uploadFileName = userService.editUserAvatar(userId, file);
         return Result.ok(uploadFileName).responseEntity();
     }
 
-    /**
-     * 添加用户信息表。
-     *
-     * @param user 用户信息表
-     * @return {@code true} 添加成功，{@code false} 添加失败
-     */
-    @PostMapping("save")
-    @Operation(description = "保存用户信息表")
-    public boolean save(@RequestBody @Parameter(description = "用户信息表") User user) {
-        return userService.save(user);
-    }
-
-    /**
-     * 根据主键删除用户信息表。
-     *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
-     */
-    @DeleteMapping("remove/{id}")
-    @Operation(description = "根据主键用户信息表")
-    public boolean remove(@PathVariable @Parameter(description = "用户信息表主键") Serializable id) {
-        return userService.removeById(id);
-    }
-
-    /**
-     * 根据主键更新用户信息表。
-     *
-     * @param user 用户信息表
-     * @return {@code true} 更新成功，{@code false} 更新失败
-     */
-    @PutMapping("update")
-    @Operation(description = "根据主键更新用户信息表")
-    public boolean update(@RequestBody @Parameter(description = "用户信息表主键") User user) {
-        return userService.updateById(user);
-    }
 }
