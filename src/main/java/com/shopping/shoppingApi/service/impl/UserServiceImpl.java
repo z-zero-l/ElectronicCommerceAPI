@@ -6,6 +6,7 @@ import cn.hutool.crypto.SmUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.mybatisflex.core.mask.MaskManager;
+import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
@@ -15,6 +16,7 @@ import com.shopping.shoppingApi.common.utils.JWTUtils;
 import com.shopping.shoppingApi.constant.APIConstant;
 import com.shopping.shoppingApi.entity.User;
 import com.shopping.shoppingApi.mapper.UserMapper;
+import com.shopping.shoppingApi.query.UserForgetQuery;
 import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.service.RedisService;
@@ -31,6 +33,7 @@ import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 
 import static com.shopping.shoppingApi.constant.APIConstant.*;
+import static com.shopping.shoppingApi.entity.table.UserTableDef.USER;
 
 /**
  * 用户信息表 服务层实现。
@@ -107,6 +110,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userVO.setToken(token);
         return userVO;
 
+    }
+
+    /**
+     * 忘记密码
+     *
+     * @param userForgetQuery 用户忘记密码信息
+     */
+    @Override
+    public Void forgetPassword(UserForgetQuery userForgetQuery) {
+        User user = getOne(QueryChain.create().where(USER.ACCOUNT.eq(userForgetQuery.getAccount())).where(USER.USER_NAME.eq(userForgetQuery.getUserName())));
+        if (user == null) {
+            throw new ServerException("账号或用户名错误");
+        }
+        if (!userForgetQuery.getPassword().equals(userForgetQuery.getConfirmPassword())) {
+            throw new ServerException("两次密码不一致");
+        }
+        user.setPassword(SmUtil.sm3(PASSWORD_SALT + userForgetQuery.getPassword()));
+        if (!updateById(user)) {
+            throw new ServerException("修改密码失败");
+        }
+        return null;
     }
 
     /**
