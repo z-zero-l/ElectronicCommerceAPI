@@ -1,6 +1,7 @@
 package com.shopping.shoppingApi.service.impl;
 
 import com.mybatisflex.core.query.QueryChain;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Cart;
@@ -43,12 +44,16 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
      * @return 购物车列表
      */
     @Override
-    public List<CartVO> getCartList(Integer userId) {
+    public List<CartVO> getCartList(Integer userId, Integer selected) {
         if (!QueryChain.of(userMapper).eq("user_id", userId).exists()) {
             throw new ServerException("用户不存在");
         }
         ArrayList<CartVO> cartVOS = new ArrayList<>();
-        List<Cart> carts = list(QueryChain.create().eq("user_id", userId));
+        QueryWrapper queryWrapper = QueryChain.create().eq("user_id", userId);
+        if (selected == 1) {
+            queryWrapper.eq("selected", selected);
+        }
+        List<Cart> carts = list(queryWrapper);
         for (Cart cart : carts) {
             Product product = productMapper.selectOneById(cart.getProductId());
             ProductSpec productSpec = productSpecMapper.selectOneById(cart.getProductId());

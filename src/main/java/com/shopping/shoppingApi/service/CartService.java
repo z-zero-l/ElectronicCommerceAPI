@@ -21,7 +21,7 @@ public interface CartService extends IService<Cart> {
      * @param userId 用户id
      * @return 购物车列表
      */
-    List<CartVO> getCartList(Integer userId);
+    List<CartVO> getCartList(Integer userId,Integer selected);
 
     /**
      * 修改购物车

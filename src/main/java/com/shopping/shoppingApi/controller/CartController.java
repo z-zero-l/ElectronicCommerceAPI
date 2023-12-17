@@ -42,9 +42,9 @@ public class CartController {
      * @return 购物车列表
      */
     @GetMapping("list")
-    @Operation(summary = "获取购物车列表", description = "根据用户id获取购物车列表")
-    public ResponseEntity<Result<List<CartVO>>> getCartList() {
-        return Result.ok(cartService.getCartList(getUserId(request))).responseEntity();
+    @Operation(summary = "获取购物车列表", description = "根据用户id和商品选中状态获取购物车列表")
+    public ResponseEntity<Result<List<CartVO>>> getCartList(@RequestParam(required = false) Integer selected) {
+        return Result.ok(cartService.getCartList(getUserId(request), selected)).responseEntity();
     }
 
     /**
