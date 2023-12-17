@@ -2,6 +2,7 @@ package com.shopping.shoppingApi.service;
 
 import com.mybatisflex.core.service.IService;
 import com.shopping.shoppingApi.entity.User;
+import com.shopping.shoppingApi.query.UserForgetQuery;
 import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.vo.LoginResultVO;
@@ -29,6 +30,13 @@ public interface UserService extends IService<User> {
      * @return 用户授权和头像信息
      */
     LoginResultVO login(UserLoginQuery userLoginQuery);
+
+    /**
+     * 忘记密码
+     *
+     * @param userForgetQuery 用户忘记密码信息
+     */
+    Void forgetPassword(UserForgetQuery userForgetQuery);
 
     /**
      * 获取用户信息

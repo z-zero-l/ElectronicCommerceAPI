@@ -1,6 +1,7 @@
 package com.shopping.shoppingApi.controller;
 
 import com.shopping.shoppingApi.common.result.Result;
+import com.shopping.shoppingApi.query.UserForgetQuery;
 import com.shopping.shoppingApi.query.UserLoginQuery;
 import com.shopping.shoppingApi.query.UserRegisterQuery;
 import com.shopping.shoppingApi.service.UserService;
@@ -42,7 +43,7 @@ public class UserController {
      * @return 用户id
      */
     @PostMapping("register")
-    @Operation(summary = "注册接口", description = "注册接口")
+    @Operation(summary = "注册", description = "注册")
     public ResponseEntity<Result<Void>> register(@RequestBody @Parameter(description = "用户信息表") UserRegisterQuery user) {
         return Result.ok(userService.register(user)).responseEntity();
     }
@@ -54,9 +55,21 @@ public class UserController {
      * @return 用户授权和头像
      */
     @PostMapping("login")
-    @Operation(summary = "登录接口", description = "登录接口")
+    @Operation(summary = "登录", description = "登录")
     public ResponseEntity<Result<LoginResultVO>> login(@RequestBody @Parameter(description = "用户信息表") UserLoginQuery user) {
         return Result.ok(userService.login(user)).responseEntity();
+    }
+
+    /**
+     * 忘记密码
+     *
+     * @param userForgetQuery 用户忘记密码信息
+     * @return
+     */
+    @PostMapping("forget")
+    @Operation(summary = "忘记密码", description = "忘记密码")
+    public ResponseEntity<Result<Void>> forget(@RequestBody @Parameter(description = "用户忘记密码信息") UserForgetQuery userForgetQuery) {
+        return Result.ok(userService.forgetPassword(userForgetQuery)).responseEntity();
     }
 
     /**
