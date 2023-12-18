@@ -108,7 +108,7 @@ public class OrderItem extends Model<OrderItem> {
     /**
      * 创建时间
      */
-    @Column(onInsertValue = "now()", isLarge = true)
+    @Column(onInsertValue = "now()")
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 

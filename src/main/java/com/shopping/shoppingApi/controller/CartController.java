@@ -60,18 +60,6 @@ public class CartController {
     }
 
     /**
-     * 添加购物车。
-     *
-     * @param cart 购物车
-     * @return {@code true} 添加成功，{@code false} 添加失败
-     */
-    @PostMapping("save")
-    @Operation(description = "保存购物车",summary = "保存购物车")
-    public boolean save(@RequestBody @Parameter(description = "购物车") Cart cart) {
-        return cartService.save(cart);
-    }
-
-    /**
      * 删除购物车商品。
      *
      * @param cartId 主键
