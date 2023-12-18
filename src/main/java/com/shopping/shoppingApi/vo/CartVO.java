@@ -29,6 +29,8 @@ public class CartVO implements Serializable {
     private Double joinPrice;
     @Schema(description = "当前售价")
     private Double sellPrice;
+    @Schema(description = "运费")
+    private Double freight;
     @Schema(description = "商品状态(1-已上架 2-已下架)")
     private Integer productStatus;
     @Schema(description = "是否选中(0-未选中 1-已选中)")

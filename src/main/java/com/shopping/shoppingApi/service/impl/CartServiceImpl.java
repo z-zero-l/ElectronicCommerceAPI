@@ -73,6 +73,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
                     .setStock(stock)
                     .setJoinPrice(cart.getJoinPrice())
                     .setSellPrice(productSpec.getSellPrice())
+                    .setFreight(product.getFreight())
                     .setProductStatus(product.getProductStatus())
                     .setSelected(cart.getSelected());
             cartVOS.add(cartVO);
