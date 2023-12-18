@@ -46,7 +46,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     public List<OrderItemVO> getOrderList(Integer userId, Integer status) {
         ArrayList<OrderVO> orderVOS = new ArrayList<>();
-        if (!ArrayUtil.contains(new Integer[]{0, 1, 2, 3, 4, 5}, status)){
+        if (status!= null &&!ArrayUtil.contains(new Integer[]{0, 1, 2, 3, 4, 5}, status)){
             throw new ServerException("订单状态不合法");
         }
         list(QueryChain.create().where(ORDER.USER_ID.eq(userId))).forEach(order -> {
