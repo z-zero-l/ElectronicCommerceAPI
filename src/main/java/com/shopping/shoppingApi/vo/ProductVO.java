@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,8 +14,10 @@ public class ProductVO implements Serializable {
     private Integer productId;
     @Schema(description = "商品名称")
     private String productName;
+    @Schema(description = "店铺ID")
+    private Integer businessId;
     @Schema(description = "所属店铺")
-    private String business;
+    private String businessName;
     @Schema(description = "分类")
     private CategoryVO cate;
     @Schema(description = "商品简介")
@@ -29,6 +30,8 @@ public class ProductVO implements Serializable {
     private Integer productStatus;
     @Schema(description = "收藏数")
     private Integer collectCount;
+    @Schema(description = "总销量")
+    private Integer totalSaleAmount;
     @Schema(description = "是否收藏")
     private Boolean isCollect;
     @Schema(description = "评论数")

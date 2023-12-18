@@ -5,6 +5,7 @@ import com.mybatisflex.core.query.QueryMethods;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.exception.ServerException;
+import com.shopping.shoppingApi.entity.Business;
 import com.shopping.shoppingApi.entity.Category;
 import com.shopping.shoppingApi.entity.Product;
 import com.shopping.shoppingApi.mapper.*;
@@ -53,7 +54,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @param userId 用户id
      * @return 商品详情
      */
-    // todo: 商品评论,商品收藏
     @Override
     public ProductVO getProductInfo(Integer id, Integer userId) {
         if (id == null) {
@@ -63,11 +63,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         if (product == null) {
             throw new ServerException("商品不存在");
         }
+        Business business = businessMapper.selectOneByQuery(
+                new QueryWrapper().where(BUSINESS.ID.eq(product.getBusinessId())));
         ProductVO productVO = ProductVO.create()
                 .setProductId(product.getProductId()) // 主键
                 .setProductName(product.getProductName()) // 商品名称
-                .setBusiness((String) businessMapper.selectObjectByQuery(
-                        new QueryWrapper().select(BUSINESS.BUSINESS_NAME).where(BUSINESS.ID.eq(product.getBusinessId())))); // 所属店铺
+                .setBusinessId(business.getId())
+                .setBusinessName(business.getBusinessName()); // 所属店铺
 
         // 二级分类
         CategoryChildVO categoryChildVO = CategoryChildVO.create();
@@ -115,6 +117,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                         .where(COMMENT.PRODUCT_ID.eq(product.getProductId()))
                         .count()
         );
+        BigDecimal totalSaleAmount = (BigDecimal) QueryChain.of(orderItemMapper)
+                .select(sum(ORDER_ITEM.AMOUNT))
+                .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
+                .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
+                .where(ORDER_ITEM.STATUS.notIn(List.of(0, 5))).obj();
+        productVO.setTotalSaleAmount(totalSaleAmount == null ? 0 : totalSaleAmount.intValue());
 
         if (product.getProductStatus() == 1) {
             // 商品规格
