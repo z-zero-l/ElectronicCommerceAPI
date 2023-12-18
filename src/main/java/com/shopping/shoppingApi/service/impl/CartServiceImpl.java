@@ -50,7 +50,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         }
         ArrayList<CartVO> cartVOS = new ArrayList<>();
         QueryWrapper queryWrapper = QueryChain.create().eq("user_id", userId);
-        if (selected == 1) {
+        if (selected != null && selected == 1) {
             queryWrapper.eq("selected", selected);
         }
         List<Cart> carts = list(queryWrapper);
