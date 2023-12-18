@@ -209,8 +209,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userVO.getPhone() != null) {
             user.setPhone(userVO.getPhone());
         }
-        if (user.getBirthday() != null) {
-            user.setBirthday(LocalDateTimeUtil.parse(userVO.getBirthday()));
+        if (userVO.getBirthday() != null) {
+            user.setBirthday(LocalDateTimeUtil.parse(userVO.getBirthday()+"T00:00:00"));
         }
         if (userVO.getProfile() != null) {
             user.setProfile(userVO.getProfile());
