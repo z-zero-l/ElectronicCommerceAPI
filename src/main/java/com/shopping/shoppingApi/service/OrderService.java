@@ -2,6 +2,7 @@ package com.shopping.shoppingApi.service;
 
 import com.mybatisflex.core.service.IService;
 import com.shopping.shoppingApi.entity.Order;
+import com.shopping.shoppingApi.query.OrderQuery;
 import com.shopping.shoppingApi.vo.OrderDetailVO;
 import com.shopping.shoppingApi.vo.OrderItemVO;
 
@@ -17,17 +18,29 @@ public interface OrderService extends IService<Order> {
 
     /**
      * 获取用户订单列表
+     *
      * @param userId 用户ID
      * @param status 订单状态
      * @return 订单列表
      */
-    List<OrderItemVO> getOrderList(Integer userId,Integer status);
+    List<OrderItemVO> getOrderList(Integer userId, Integer status);
 
     /**
      * 获取订单详情
-     * @param userId 用户ID
+     *
+     * @param userId      用户ID
      * @param orderItemId 订单项ID
      * @return 订单详情
      */
     OrderDetailVO getOrderDetail(Integer userId, Integer orderItemId);
+
+    /**
+     * 提交订单
+     *
+     * @param userId         用户id
+     * @param addressId      地址id
+     * @param orderQueryList 订单信息
+     * @return 订单id
+     */
+    String submitOrder(Integer userId, Integer addressId, List<OrderQuery> orderQueryList);
 }

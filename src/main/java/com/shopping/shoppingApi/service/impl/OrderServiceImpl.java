@@ -1,24 +1,39 @@
 package com.shopping.shoppingApi.service.impl;
 
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.IdUtil;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.core.row.Db;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.shopping.shoppingApi.common.enums.OrderStatusEnum;
 import com.shopping.shoppingApi.common.exception.ServerException;
-import com.shopping.shoppingApi.entity.Business;
-import com.shopping.shoppingApi.entity.Order;
-import com.shopping.shoppingApi.entity.OrderItem;
-import com.shopping.shoppingApi.entity.Product;
+import com.shopping.shoppingApi.entity.*;
 import com.shopping.shoppingApi.mapper.*;
+import com.shopping.shoppingApi.query.OrderQuery;
 import com.shopping.shoppingApi.service.OrderService;
 import com.shopping.shoppingApi.vo.OrderDetailVO;
 import com.shopping.shoppingApi.vo.OrderItemVO;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+import static com.shopping.shoppingApi.entity.table.AddressTableDef.ADDRESS;
+import static com.shopping.shoppingApi.entity.table.CartTableDef.CART;
 import static com.shopping.shoppingApi.entity.table.OrderItemTableDef.ORDER_ITEM;
 import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
 
@@ -29,13 +44,22 @@ import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
  * @since 2023-12-04
  */
 @Service
-@AllArgsConstructor
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
 
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    @Autowired
     private OrderItemMapper orderItemMapper;
+    @Autowired
     private BusinessMapper businessMapper;
+    @Autowired
     private ProductMapper productMapper;
+    @Autowired
     private ProductSpecMapper productSpecMapper;
+    @Autowired
+    private CartMapper cartMapper;
+    @Autowired
+    private AddressMapper addressMapper;
+    private ScheduledFuture<?> cancelTask;
 
     /**
      * 获取用户订单列表
@@ -102,7 +126,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 orderDetailVO.setBusinessName("店铺已关闭");
             } else {
                 orderDetailVO.setBusinessId(business.getId())
-                       .setBusinessName(business.getBusinessName());
+                        .setBusinessName(business.getBusinessName());
             }
         }
         orderDetailVO.setProductName(orderItem.getProductName())
@@ -121,10 +145,97 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 .setCancelReason(orderItem.getCancelReason())
                 .setStatus(orderItem.getStatus())
                 .setCreateTime(orderItem.getCreateTime())
-               .setPayTime(orderItem.getPayTime())
-               .setSendTime(orderItem.getSendTime())
-               .setReceiptTime(orderItem.getReceiptTime())
-               .setFinishTime(orderItem.getFinishTime());
+                .setPayTime(orderItem.getPayTime())
+                .setSendTime(orderItem.getSendTime())
+                .setReceiptTime(orderItem.getReceiptTime())
+                .setFinishTime(orderItem.getFinishTime());
+
+        orderDetailVO.setPayLatestTime(orderItem.getCreateTime().plusMinutes(5));
+
+        if (orderDetailVO.getPayLatestTime().isAfter(LocalDateTime.now())) {
+            Duration duration = LocalDateTimeUtil.between(LocalDateTime.now(), orderDetailVO.getPayLatestTime());
+            orderDetailVO.setCountdown(Math.toIntExact(duration.toSeconds()));
+        }
         return orderDetailVO;
+    }
+
+    @Async
+    public void scheduleOrderCancel(OrderItem orderItem) {
+        cancelTask = executorService.schedule(() -> {
+            if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
+                orderItem.setStatus(OrderStatusEnum.CANCELLED.getValue());
+                orderItemMapper.update(orderItem);
+            }
+        }, 5, TimeUnit.MINUTES);
+    }
+
+    public void cancelScheduledTask() {
+        if (cancelTask != null && !cancelTask.isDone()) {
+            cancelTask.cancel(true);
+        }
+    }
+
+    /**
+     * 提交订单
+     *
+     * @param userId         用户id
+     * @param addressId      地址id
+     * @param orderQueryList 订单信息
+     * @return 订单id
+     */
+    @Override
+    public String submitOrder(Integer userId, Integer addressId, List<OrderQuery> orderQueryList) {
+        List<Cart> cartList = cartMapper.selectListByQuery(QueryChain.create().where(CART.USER_ID.eq(userId)).and(CART.SELECTED.eq(1)));
+        if (cartList.isEmpty()) {
+            throw new ServerException("请先选择商品");
+        }
+        Address address = addressMapper.selectOneByQuery(QueryChain.create().where(ADDRESS.ID.eq(addressId)).and(ADDRESS.USER_ID.eq(userId)));
+        if (address == null) {
+            throw new ServerException("地址不存在");
+        }
+        Map<Integer, String> orderRemarkMap = CollStreamUtil.toMap(orderQueryList, OrderQuery::getCartId, OrderQuery::getRemark);
+        BigDecimal payment = new BigDecimal(0);
+        Order order = Order.create()
+                .setUserId(userId)
+                .setOrderId(IdUtil.simpleUUID())
+                .setConsignee(address.getReceiver())
+                .setPhone(address.getContact())
+                .setProvinceCode(address.getProvinceCode())
+                .setCityCode(address.getCityCode())
+                .setDistrictCode(address.getDistrictCode())
+                .setAddress(address.getAddress())
+                .setPayment(payment);
+        if (!order.save()) {
+            throw new ServerException("订单提交失败");
+        }
+        ArrayList<OrderItem> orderItems = new ArrayList<>();
+        for (Cart cart : cartList) {
+            Product product = productMapper.selectOneById(cart.getProductId());
+            ProductSpec productSpec = productSpecMapper.selectOneById(cart.getSpecId());
+            BigDecimal price = BigDecimal.valueOf(productSpec.getSellPrice()).multiply(BigDecimal.valueOf(cart.getQuantity()));
+            orderItems.add(OrderItem.create()
+                    .setOrderId(order.getId())
+                    .setProductId(product.getProductId())
+                    .setAmount(cart.getQuantity())
+                    .setProductName(product.getProductName())
+                    .setSpecName(productSpec.getSpecName())
+                    .setProductImage(productSpec.getSpecImg())
+                    .setFreight(product.getFreight())
+                    .setPrice(price)
+                    .setRemark(orderRemarkMap.get(cart.getCartId()))
+                    .setStatus(OrderStatusEnum.WAITING_FOR_PAYMENT.getValue()));
+            payment = payment.add(price).add(BigDecimal.valueOf(product.getFreight()));
+        }
+        order.setPayment(payment);
+        Db.tx(() -> {
+            updateById(order);
+            cartMapper.deleteBatchByIds(CollStreamUtil.toList(cartList, Cart::getCartId));
+            orderItemMapper.insertBatch(orderItems);
+            for (OrderItem orderItem : orderItems) {
+                scheduleOrderCancel(orderItem);
+            }
+            return true;
+        });
+        return order.getOrderId();
     }
 }

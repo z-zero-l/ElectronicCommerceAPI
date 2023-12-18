@@ -162,7 +162,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
                         .setProductId(productSpec.getProductId())
                         .setSpecId(productSpec.getId())
                         .setQuantity(cartQuery.getCount())
-                        .setJoinPrice(productSpec.getListPrice())
+                        .setJoinPrice(productSpec.getSellPrice())
                         .setSelected(1);
             }
         } else {
