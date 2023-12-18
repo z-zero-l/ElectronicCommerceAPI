@@ -19,9 +19,10 @@ public interface BusinessService extends IService<Business> {
      * 获取店铺信息
      *
      * @param businessId 店铺id
+     * @param keyword    商品关键字
      * @return 店铺信息
      */
-    BusinessVO getBusinessInfo(Integer businessId);
+    BusinessVO getBusinessInfo(Integer businessId, String keyword);
 
     /**
      * 搜索店铺

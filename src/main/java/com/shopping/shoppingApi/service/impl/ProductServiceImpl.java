@@ -171,12 +171,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         ArrayList<ProductListVO> productListVOS = new ArrayList<>();
         list(productQueryWrapper.limit(48))
                 .forEach(product -> {
-                    BigDecimal totalSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
+                    BigDecimal totalSaleAmount = (BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
                             .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
                             .where(ORDER_ITEM.STATUS.notIn(List.of(0, 5))).obj();
-                    BigDecimal weekSellAmount = (BigDecimal) QueryChain.of(orderItemMapper)
+                    BigDecimal weekSaleAmount = (BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
                             .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
@@ -192,8 +192,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                             .setFreight(product.getFreight()) // 运费
                             .setPrice((Double) QueryChain.of(productSpecMapper).select(QueryMethods.min(PRODUCT_SPEC.SELL_PRICE)).where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId())).obj()) // 商品价格
                             .setProductCover(product.getProductCover()) // 商品封面图片
-                            .setIsHot(weekSellAmount != null && (weekSellAmount.intValue() > 10)) // 是否热门
-                            .setTotalSaleAmount(totalSellAmount == null ? 0 : totalSellAmount.intValue())
+                            .setIsHot(weekSaleAmount != null && (weekSaleAmount.intValue() > 10)) // 是否热门
+                            .setTotalSaleAmount(totalSaleAmount == null ? 0 : totalSaleAmount.intValue())
                             .setIsNew(
                                     QueryChain.of(productSpecMapper)
                                             .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))

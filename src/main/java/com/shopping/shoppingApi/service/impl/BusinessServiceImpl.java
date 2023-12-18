@@ -24,6 +24,7 @@ import java.util.List;
 import static com.mybatisflex.core.query.QueryMethods.sum;
 import static com.shopping.shoppingApi.entity.table.BusinessTableDef.BUSINESS;
 import static com.shopping.shoppingApi.entity.table.OrderItemTableDef.ORDER_ITEM;
+import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
 import static com.shopping.shoppingApi.entity.table.ProductSpecTableDef.PRODUCT_SPEC;
 import static com.shopping.shoppingApi.entity.table.ProductTableDef.PRODUCT;
 
@@ -45,14 +46,24 @@ public class BusinessServiceImpl extends ServiceImpl<BusinessMapper, Business> i
      * 获取店铺信息
      *
      * @param businessId 店铺id
+     * @param keyword 商品关键字
      * @return 店铺信息
      */
     @Override
-    public BusinessVO getBusinessInfo(Integer businessId) {
+    public BusinessVO getBusinessInfo(Integer businessId,String keyword) {
         ArrayList<ProductListVO> productListVOS = new ArrayList<>();
-        productMapper.selectListByQuery(QueryChain.create().where(PRODUCT.BUSINESS_ID.eq(businessId)))
+        QueryWrapper queryWrapper = QueryChain.create().where(PRODUCT.BUSINESS_ID.eq(businessId));
+        if(keyword != null){
+            queryWrapper.and(PRODUCT.PRODUCT_NAME.like("%"+keyword+"%"));
+        }
+        productMapper.selectListByQuery(queryWrapper)
                 .forEach(product -> {
-                    BigDecimal isHot = ((BigDecimal) QueryChain.of(orderItemMapper)
+                    BigDecimal totalSaleAmount = (BigDecimal) QueryChain.of(orderItemMapper)
+                            .select(sum(ORDER_ITEM.AMOUNT))
+                            .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
+                            .join(ORDER).on(ORDER_ITEM.ORDER_ID.eq(ORDER.ID))
+                            .where(ORDER_ITEM.STATUS.notIn(List.of(0, 5))).obj();
+                    BigDecimal weekSellAmount = ((BigDecimal) QueryChain.of(orderItemMapper)
                             .select(sum(ORDER_ITEM.AMOUNT))
                             .where(ORDER_ITEM.PRODUCT_ID.eq(product.getProductId()))
                             .obj());
@@ -65,7 +76,8 @@ public class BusinessServiceImpl extends ServiceImpl<BusinessMapper, Business> i
                             .setFreight(product.getFreight()) // 运费
                             .setPrice((Double) QueryChain.of(productSpecMapper).select(QueryMethods.min(PRODUCT_SPEC.SELL_PRICE)).where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId())).obj()) // 商品价格
                             .setProductCover(product.getProductCover()) // 商品封面图片
-                            .setIsHot(isHot != null && (isHot.intValue() > 10)) // 是否热门
+                            .setIsHot(weekSellAmount != null && (weekSellAmount.intValue() > 10)) // 是否热门
+                            .setTotalSaleAmount(totalSaleAmount == null ? 0 : totalSaleAmount.intValue())
                             .setIsNew(
                                     QueryChain.of(productSpecMapper)
                                             .where(PRODUCT_SPEC.PRODUCT_ID.eq(product.getProductId()))

@@ -33,12 +33,13 @@ public class BusinessController {
      * 获取店铺信息
      *
      * @param id 店铺id
+     * @param keyword 商品关键字
      * @return 店铺信息
      */
     @GetMapping("{id}")
     @Operation(description = "获取店铺信息表", summary = "获取店铺信息表")
-    public ResponseEntity<Result<BusinessVO>> getBusinessInfo(@PathVariable("id") Integer id) {
-        return Result.ok(businessService.getBusinessInfo(id)).responseEntity();
+    public ResponseEntity<Result<BusinessVO>> getBusinessInfo(@PathVariable("id") Integer id,@Parameter String keyword) {
+        return Result.ok(businessService.getBusinessInfo(id,keyword)).responseEntity();
     }
 
     /**
