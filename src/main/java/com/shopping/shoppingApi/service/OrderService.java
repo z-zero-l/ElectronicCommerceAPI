@@ -18,7 +18,8 @@ public interface OrderService extends IService<Order> {
     /**
      * 获取用户订单列表
      * @param userId 用户ID
+     * @param status 订单状态
      * @return 订单列表
      */
-    List<OrderItemVO> getOrderList(Integer userId);
+    List<OrderItemVO> getOrderList(Integer userId,Integer status);
 }

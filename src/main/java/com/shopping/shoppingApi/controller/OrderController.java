@@ -4,6 +4,7 @@ import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.service.OrderService;
 import com.shopping.shoppingApi.vo.OrderItemVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class OrderController {
 
     @GetMapping("list")
     @Operation(description = "查询所有订单", summary = "查询所有订单")
-    public ResponseEntity<Result<List<OrderItemVO>>> getOrderList() {
-        return Result.ok(orderService.getOrderList(getUserId(request))).responseEntity();
+    public ResponseEntity<Result<List<OrderItemVO>>> getOrderList(@Parameter Integer status) {
+        return Result.ok(orderService.getOrderList(getUserId(request),status)).responseEntity();
     }
 }

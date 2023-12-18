@@ -1,7 +1,10 @@
 package com.shopping.shoppingApi.service.impl;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.mybatisflex.core.query.QueryChain;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Business;
 import com.shopping.shoppingApi.entity.Order;
 import com.shopping.shoppingApi.mapper.BusinessMapper;
@@ -41,8 +44,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * @return 订单列表
      */
     @Override
-    public List<OrderItemVO> getOrderList(Integer userId) {
+    public List<OrderItemVO> getOrderList(Integer userId, Integer status) {
         ArrayList<OrderVO> orderVOS = new ArrayList<>();
+        if (!ArrayUtil.contains(new Integer[]{0, 1, 2, 3, 4, 5}, status)){
+            throw new ServerException("订单状态不合法");
+        }
         list(QueryChain.create().where(ORDER.USER_ID.eq(userId))).forEach(order -> {
             orderVOS.add(OrderVO.create()
                     .setId(order.getId())
@@ -50,7 +56,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         });
         ArrayList<OrderItemVO> orderItemVOS = new ArrayList<>();
         orderVOS.forEach(orderVO -> {
-            orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(orderVO.getId())).orderBy(ORDER_ITEM.CREATE_TIME.desc()))
+            QueryWrapper queryWrapper = QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(orderVO.getId()));
+            if (status != null) {
+                queryWrapper.and(ORDER_ITEM.STATUS.eq(status));
+            }
+            orderItemMapper.selectListByQuery(queryWrapper.orderBy(ORDER_ITEM.CREATE_TIME.desc()))
                     .forEach(orderItem -> {
                         Business business = businessMapper.selectOneById(productMapper.selectOneById(orderItem.getProductId()).getBusinessId());
                         orderItemVOS.add(OrderItemVO.create()
