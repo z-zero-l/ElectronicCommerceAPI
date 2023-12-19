@@ -51,10 +51,10 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
      */
     @Override
     public Void addAddress(Integer userId, AddressVO addressVO) {
-        if (addressVO.getReceiver() == null) {
+        if (addressVO.getReceiver().isEmpty()) {
             throw new RuntimeException("收件人不能为空");
         }
-        if (addressVO.getContact() == null) {
+        if (addressVO.getContact().isEmpty()) {
             throw new RuntimeException("联系方式不能为空");
         }
         if (addressVO.getProvinceCode() == null) {
@@ -66,7 +66,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         if (addressVO.getDistrictCode() == null) {
             throw new RuntimeException("区县编码不能为空");
         }
-        if (addressVO.getAddress() == null) {
+        if (addressVO.getAddress().isEmpty()) {
             throw new RuntimeException("详细地址不能为空");
         }
         if (addressVO.getIsDefault() == null) {
@@ -74,8 +74,10 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         } else {
             if (addressVO.getIsDefault() == 1) {
                 Address address = getOne(QueryChain.create().where(ADDRESS.USER_ID.eq(userId)).and(ADDRESS.IS_DEFAULT.eq(1)));
-                address.setIsDefault(0);
-                address.update();
+                if (address != null) {
+                    address.setIsDefault(0);
+                    updateById(address);
+                }
             }
         }
         Address address = Address.create()
@@ -104,10 +106,10 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         if (!exists(QueryChain.create().where(ADDRESS.ID.eq(addressVO.getId())).and(ADDRESS.USER_ID.eq(userId)))) {
             throw new RuntimeException("地址不存在");
         }
-        if (addressVO.getReceiver() == null) {
+        if (addressVO.getReceiver().isEmpty()) {
             throw new RuntimeException("收件人不能为空");
         }
-        if (addressVO.getContact() == null) {
+        if (addressVO.getContact().isEmpty()) {
             throw new RuntimeException("联系方式不能为空");
         }
         if (addressVO.getProvinceCode() == null) {
@@ -119,7 +121,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         if (addressVO.getDistrictCode() == null) {
             throw new RuntimeException("区县编码不能为空");
         }
-        if (addressVO.getAddress() == null) {
+        if (addressVO.getAddress().isEmpty()) {
             throw new RuntimeException("详细地址不能为空");
         }
         if (addressVO.getIsDefault() == null) {
@@ -129,7 +131,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
                 Address address = getOne(QueryChain.create().where(ADDRESS.USER_ID.eq(userId)).and(ADDRESS.IS_DEFAULT.eq(1)));
                 if (address != null) {
                     address.setIsDefault(0);
-                    address.update();
+                    updateById(address);
                 }
             }
         }
