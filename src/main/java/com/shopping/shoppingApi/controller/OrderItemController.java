@@ -10,6 +10,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,6 +67,17 @@ public class OrderItemController {
     @Operation(description = "确认收货", summary = "确认收货")
     public ResponseEntity<Result<Void>> confirm(@Parameter(required = true) Integer userId, @Parameter(required = true) Integer orderItemId) {
         return Result.ok(orderItemService.confirmReceipt(userId, orderItemId)).responseEntity();
+    }
+
+    /**
+     * 删除订单
+     *
+     * @param orderItemId 订单项ID
+     */
+    @DeleteMapping("delete")
+    @Operation(description = "删除订单", summary = "删除订单")
+    public ResponseEntity<Result<Void>> delete(@Parameter(required = true) Integer orderItemId) {
+        return Result.ok(orderItemService.deleteOrder(getUserId(request),orderItemId)).responseEntity();
     }
     
 }

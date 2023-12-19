@@ -36,4 +36,12 @@ public interface OrderItemService extends IService<OrderItem> {
      * @param orderItemId 订单项ID
      */
     Void confirmReceipt(Integer userId, Integer orderItemId);
+
+    /**
+     * 删除订单
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     */
+    Void deleteOrder(Integer userId, Integer orderItemId);
 }
