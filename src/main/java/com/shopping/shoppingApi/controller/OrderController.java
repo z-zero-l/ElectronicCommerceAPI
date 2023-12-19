@@ -41,15 +41,15 @@ public class OrderController {
     }
 
     /**
-     * 获取订单项详情
+     * 获取订单详情
      *
-     * @param orderItemId 订单项id
+     * @param orderId 订单id
      * @return 订单详情
      */
     @GetMapping("detail")
-    @Operation(description = "获取订单项详情", summary = "获取订单项详情")
-    public ResponseEntity<Result<OrderVO>> getOrderDetail(@Parameter(required = true) String orderItemId) {
-        return Result.ok(orderService.getOrderDetail(getUserId(request), orderItemId)).responseEntity();
+    @Operation(description = "获取订单详情", summary = "获取订单详情")
+    public ResponseEntity<Result<OrderVO>> getOrderDetail(@Parameter(required = true) String orderId) {
+        return Result.ok(orderService.getOrderDetail(getUserId(request), orderId)).responseEntity();
     }
 
     /**
