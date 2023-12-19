@@ -56,7 +56,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         List<Cart> carts = list(queryWrapper);
         for (Cart cart : carts) {
             Product product = productMapper.selectOneById(cart.getProductId());
-            ProductSpec productSpec = productSpecMapper.selectOneById(cart.getProductId());
+            ProductSpec productSpec = productSpecMapper.selectOneById(cart.getSpecId());
             if (product == null || productSpec == null) {
                 removeById(cart.getCartId());
                 continue;
@@ -141,8 +141,8 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
      */
     @Override
     public Void addCart(Integer userId, CartQuery cartQuery) {
-        Cart cart = getOne(QueryChain.create().where(CART.USER_ID.eq(userId)).where(CART.PRODUCT_ID.eq(cartQuery.getId())));
-        Integer productStock = (Integer) QueryChain.of(productSpecMapper).select(PRODUCT_SPEC.STOCK).where(PRODUCT_SPEC.ID.eq(cart.getProductId())).obj();
+        Cart cart = getOne(QueryChain.create().where(CART.USER_ID.eq(userId)).where(CART.SPEC_ID.eq(cartQuery.getId())));
+        Integer productStock = (Integer) QueryChain.of(productSpecMapper).select(PRODUCT_SPEC.STOCK).where(PRODUCT_SPEC.ID.eq(cartQuery.getId())).obj();
         if (cart == null) {
             if (cartQuery.getCount() > 0) {
                 ProductSpec productSpec = productSpecMapper.selectOneById(cartQuery.getId());
