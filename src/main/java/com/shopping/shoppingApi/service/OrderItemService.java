@@ -20,4 +20,20 @@ public interface OrderItemService extends IService<OrderItem> {
      * @return 订单详情
      */
     OrderItemDetailVO getOrderItemDetail(Integer userId, Integer orderItemId);
+
+    /**
+     * 模拟发货
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     */
+    Void simulateDelivery(Integer userId, Integer orderItemId);
+
+    /**
+     * 确认收货
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     */
+    Void confirmReceipt(Integer userId, Integer orderItemId);
 }

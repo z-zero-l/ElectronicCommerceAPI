@@ -43,4 +43,29 @@ public class OrderItemController {
     public ResponseEntity<Result<OrderItemDetailVO>> getOrderDetail(@Parameter(required = true) Integer orderItemId) {
         return Result.ok(orderItemService.getOrderItemDetail(getUserId(request), orderItemId)).responseEntity();
     }
+
+    /**
+     * 模拟发货
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     */
+    @GetMapping("deliver")
+    @Operation(description = "模拟发货", summary = "模拟发货")
+    public ResponseEntity<Result<Void>> deliver(@Parameter(required = true) Integer userId, @Parameter(required = true) Integer orderItemId) {
+        return Result.ok(orderItemService.simulateDelivery(userId, orderItemId)).responseEntity();
+    }
+
+    /**
+     * 确认收货
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     */
+    @GetMapping("confirm")
+    @Operation(description = "确认收货", summary = "确认收货")
+    public ResponseEntity<Result<Void>> confirm(@Parameter(required = true) Integer userId, @Parameter(required = true) Integer orderItemId) {
+        return Result.ok(orderItemService.confirmReceipt(userId, orderItemId)).responseEntity();
+    }
+    
 }

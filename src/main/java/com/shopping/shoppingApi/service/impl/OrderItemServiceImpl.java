@@ -96,4 +96,48 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
         }
         return orderItemDetailVO;
     }
+
+    /**
+     * 模拟发货
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     */
+    @Override
+    public Void simulateDelivery(Integer userId, Integer orderItemId) {
+        OrderItem orderItem = getById(orderItemId);
+        if (!QueryChain.of(orderMapper).where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)).exists()) {
+            throw new ServerException("订单不存在");
+        }
+        if (!orderItem.getStatus().equals(OrderStatusEnum.WAITING_FOR_SHIPMENT.getValue())) {
+            throw new ServerException("订单状态不正确");
+        }else {
+            orderItem.setStatus(OrderStatusEnum.WAITING_FOR_DELIVERY.getValue());
+            orderItem.setSendTime(LocalDateTime.now());
+            updateById(orderItem);
+        }
+        return null;
+    }
+
+    /**
+     * 确认收货
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     */
+    @Override
+    public Void confirmReceipt(Integer userId, Integer orderItemId) {
+        OrderItem orderItem = getById(orderItemId);
+        if (!QueryChain.of(orderMapper).where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)).exists()) {
+            throw new ServerException("订单不存在");
+        }
+        if (!orderItem.getStatus().equals(OrderStatusEnum.WAITING_FOR_DELIVERY.getValue())) {
+            throw new ServerException("订单状态不正确");
+        }else {
+            orderItem.setStatus(OrderStatusEnum.WAITING_FOR_REVIEW.getValue());
+            orderItem.setReceiptTime(LocalDateTime.now());
+            updateById(orderItem);
+        }
+        return null;
+    }
 }
