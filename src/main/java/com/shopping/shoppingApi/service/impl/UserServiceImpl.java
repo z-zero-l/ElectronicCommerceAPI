@@ -61,17 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (exists(new QueryWrapper().eq("account", userRegisterQuery.getAccount()))) {
                 throw new ServerException("账号已存在");
             }
-            if (userRegisterQuery.getAccount().isEmpty()) {
-                throw new ServerException("账号不能为空");
-            } else {
-                user.setAccount(userRegisterQuery.getAccount());
-            }
-            if (userRegisterQuery.getPassword().isEmpty()) {
-                throw new ServerException("密码不能为空");
-            }
-            if (userRegisterQuery.getConfirmPassword().isEmpty()) {
-                throw new ServerException("确认密码不能为空");
-            }
+            user.setAccount(userRegisterQuery.getAccount());
             if (!userRegisterQuery.getPassword().equals(userRegisterQuery.getConfirmPassword())) {
                 throw new ServerException("两次密码不一致");
             } else {
@@ -159,6 +149,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userVO.setGender(user.getGender());
             userVO.setProfile(user.getProfile());
             userVO.setAvatar(user.getAvatar());
+            userVO.setProvinceCode(user.getProvinceCode());
+            userVO.setCityCode(user.getCityCode());
+            userVO.setDistrictCode(user.getDistrictCode());
             userVO.setBirthday(LocalDateTimeUtil.format(user.getBirthday(), DateTimeFormatter.ISO_LOCAL_DATE));
             userVO.setRegisterDays(user.getCreateTime().toLocalDate().until(user.getUpdateTime().toLocalDate()).getDays());
             return userVO;
@@ -194,25 +187,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new ServerException("用户不存在");
         }
         User user = User.create().setUserId(userId);
-        if (userVO.getUserName() != null) {
+        if (!userVO.getUserName().isEmpty()) {
             user.setUserName(userVO.getUserName());
         }
-        if (userVO.getAccount() != null) {
+        if (!userVO.getAccount().isEmpty()) {
             user.setAccount(userVO.getAccount());
         }
         if (userVO.getGender() != null) {
             user.setGender(userVO.getGender());
         }
-        if (userVO.getEmail() != null) {
+        if (!userVO.getEmail().isEmpty()) {
             user.setEmail(userVO.getEmail());
         }
-        if (userVO.getPhone() != null) {
+        if (!userVO.getPhone().isEmpty()) {
             user.setPhone(userVO.getPhone());
         }
-        if (userVO.getBirthday() != null) {
-            user.setBirthday(LocalDateTimeUtil.parse(userVO.getBirthday()+"T00:00:00"));
+        if (!userVO.getBirthday().isEmpty()) {
+            user.setBirthday(LocalDateTimeUtil.parse(userVO.getBirthday() + "T00:00:00"));
         }
-        if (userVO.getProfile() != null) {
+        if (!userVO.getProfile().isEmpty()) {
             user.setProfile(userVO.getProfile());
         }
         if (userVO.getProvinceCode() != null && userVO.getCityCode() != null && userVO.getDistrictCode() != null) {
