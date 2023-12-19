@@ -73,7 +73,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         if (status != null && !ArrayUtil.contains(new Integer[]{0, 1, 2, 3, 4, 5}, status)) {
             throw new ServerException("订单状态不合法");
         }
-        list(QueryChain.create().where(ORDER.USER_ID.eq(userId)))
+        list(QueryChain.create().where(ORDER.USER_ID.eq(userId)).orderBy(ORDER.CREATE_TIME.desc()))
                 .forEach(order -> {
                     QueryWrapper queryWrapper = QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(order.getId()));
                     if (status != null) {

@@ -99,7 +99,7 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
                     .where(PRODUCT.CATE_SEC_ID.eq(categoryId))
                     .orderBy(PRODUCT.CREATE_TIME.desc()));
         } else {
-            collects = list(QueryChain.create().eq("user_id", userId));
+            collects = list(QueryChain.create().eq("user_id", userId).orderBy(COLLECT.CREATE_TIME.desc()));
         }
         List<CollectVO> collectVOS = new ArrayList<>();
         for (Collect collect : collects) {
