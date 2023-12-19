@@ -4,6 +4,7 @@ import com.shopping.shoppingApi.common.result.Result;
 import com.shopping.shoppingApi.query.OrderQuery;
 import com.shopping.shoppingApi.service.OrderService;
 import com.shopping.shoppingApi.vo.OrderListVO;
+import com.shopping.shoppingApi.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +38,18 @@ public class OrderController {
     @Operation(description = "查询所有订单", summary = "查询所有订单")
     public ResponseEntity<Result<List<OrderListVO>>> getOrderList(@Parameter Integer status) {
         return Result.ok(orderService.getOrderList(getUserId(request), status)).responseEntity();
+    }
+
+    /**
+     * 获取订单项详情
+     *
+     * @param orderItemId 订单项id
+     * @return 订单详情
+     */
+    @GetMapping("detail")
+    @Operation(description = "获取订单项详情", summary = "获取订单项详情")
+    public ResponseEntity<Result<OrderVO>> getOrderDetail(@Parameter(required = true) String orderItemId) {
+        return Result.ok(orderService.getOrderDetail(getUserId(request), orderItemId)).responseEntity();
     }
 
     /**
