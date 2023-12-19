@@ -14,8 +14,9 @@ import com.shopping.shoppingApi.entity.*;
 import com.shopping.shoppingApi.mapper.*;
 import com.shopping.shoppingApi.query.OrderQuery;
 import com.shopping.shoppingApi.service.OrderService;
-import com.shopping.shoppingApi.vo.OrderDetailVO;
 import com.shopping.shoppingApi.vo.OrderItemVO;
+import com.shopping.shoppingApi.vo.OrderListVO;
+import com.shopping.shoppingApi.vo.OrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -68,8 +69,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * @return 订单列表
      */
     @Override
-    public List<OrderItemVO> getOrderList(Integer userId, Integer status) {
-        ArrayList<OrderItemVO> orderItemVOS = new ArrayList<>();
+    public List<OrderListVO> getOrderList(Integer userId, Integer status) {
+        ArrayList<OrderListVO> orderListVOS = new ArrayList<>();
         if (status != null && !ArrayUtil.contains(new Integer[]{0, 1, 2, 3, 4, 5}, status)) {
             throw new ServerException("订单状态不合法");
         }
@@ -82,7 +83,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     orderItemMapper.selectListByQuery(queryWrapper.orderBy(ORDER_ITEM.CREATE_TIME.desc()))
                             .forEach(orderItem -> {
                                 Business business = businessMapper.selectOneById(productMapper.selectOneById(orderItem.getProductId()).getBusinessId());
-                                orderItemVOS.add(OrderItemVO.create()
+                                orderListVOS.add(OrderListVO.create()
                                         .setId(orderItem.getId())
                                         .setOrderId(orderItem.getOrderId())
                                         .setProductId(orderItem.getProductId())
@@ -96,77 +97,62 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                                         .setStatus(orderItem.getStatus()));
                             });
                 });
-        return orderItemVOS;
+        return orderListVOS;
     }
 
     /**
      * 获取订单详情
      *
-     * @param userId      用户ID
-     * @param orderItemId 订单项ID
+     * @param userId  用户id
+     * @param orderId 订单号
      * @return 订单详情
      */
     @Override
-    public OrderDetailVO getOrderDetail(Integer userId, Integer orderItemId) {
-        OrderItem orderItem = orderItemMapper.selectOneById(orderItemId);
-        if (!exists(QueryChain.create().where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)))) {
+    public OrderVO getOrderDetail(Integer userId, String orderId) {
+        if (orderId.isEmpty()) {
+            throw new ServerException("订单号不能为空");
+        }
+        QueryWrapper queryWrapper = QueryChain.create().where(ORDER.ORDER_ID.eq(orderId)).and(ORDER.USER_ID.eq(userId));
+        if (!exists(queryWrapper)) {
             throw new ServerException("订单不存在");
         }
-        Order order = getById(orderItem.getOrderId());
-        OrderDetailVO orderDetailVO = OrderDetailVO.create()
-                .setId(orderItemId)
-                .setOrderId(order.getOrderId());
-        Product product = productMapper.selectOneById(orderItem.getProductId());
-        if (product == null) {
-            orderDetailVO.setProductId(null);
-        } else {
-            Business business = businessMapper.selectOneById(product.getBusinessId());
-            if (business == null) {
-                orderDetailVO.setBusinessId(null);
-                orderDetailVO.setBusinessName("店铺已关闭");
-            } else {
-                orderDetailVO.setBusinessId(business.getId())
-                        .setBusinessName(business.getBusinessName());
-            }
-        }
-        orderDetailVO.setProductName(orderItem.getProductName())
-                .setSpecName(orderItem.getSpecName())
-                .setSpecImage(orderItem.getProductImage())
-                .setAmount(orderItem.getAmount())
-                .setPrice(orderItem.getPrice())
-                .setFreight(orderItem.getFreight())
-                .setRemark(orderItem.getRemark())
-                .setConsignee(order.getConsignee())
-                .setPhone(order.getPhone())
-                .setProvinceCode(order.getProvinceCode())
-                .setCityCode(order.getCityCode())
-                .setDistrictCode(order.getDistrictCode())
-                .setAddress(order.getAddress())
-                .setCancelReason(orderItem.getCancelReason())
-                .setStatus(orderItem.getStatus())
-                .setCreateTime(orderItem.getCreateTime())
-                .setPayTime(orderItem.getPayTime())
-                .setSendTime(orderItem.getSendTime())
-                .setReceiptTime(orderItem.getReceiptTime())
-                .setFinishTime(orderItem.getFinishTime());
+        Order order = getOne(queryWrapper);
+        OrderVO orderVO = OrderVO.create();
+        orderVO.setPayLatestTime(order.getCreateTime().plusMinutes(15));
 
-        orderDetailVO.setPayLatestTime(orderItem.getCreateTime().plusMinutes(5));
-
-        if (orderDetailVO.getPayLatestTime().isAfter(LocalDateTime.now())) {
-            Duration duration = LocalDateTimeUtil.between(LocalDateTime.now(), orderDetailVO.getPayLatestTime());
-            orderDetailVO.setCountdown(Math.toIntExact(duration.toSeconds()));
+        if (orderVO.getPayLatestTime().isAfter(LocalDateTime.now())) {
+            Duration duration = LocalDateTimeUtil.between(LocalDateTime.now(), orderVO.getPayLatestTime());
+            orderVO.setCountdown(Math.toIntExact(duration.toSeconds()));
         }
-        return orderDetailVO;
+
+        orderVO.setPayment(order.getPayment());
+        ArrayList<OrderItemVO> orderItemVOS = new ArrayList<>();
+        orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(order.getId())))
+               .forEach(orderItem -> {
+                   orderItemVOS.add(OrderItemVO.create()
+                          .setProductName(orderItem.getProductName())
+                          .setSpecName(orderItem.getSpecName())
+                          .setSpecImage(orderItem.getProductImage())
+                          .setAmount(orderItem.getAmount())
+                          .setPrice(orderItem.getPrice())
+                           .setFreight(orderItem.getFreight())
+                           .setRemark(orderItem.getRemark()));
+               });
+        orderVO.setOrderItemVOList(orderItemVOS);
+        return orderVO;
     }
 
     @Async
-    public void scheduleOrderCancel(OrderItem orderItem) {
+    public void scheduleOrderCancel(Order order) {
         cancelTask = executorService.schedule(() -> {
-            if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
-                orderItem.setStatus(OrderStatusEnum.CANCELLED.getValue());
-                orderItemMapper.update(orderItem);
-            }
-        }, 5, TimeUnit.MINUTES);
+            orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(order.getId())))
+                    .forEach(orderItem -> {
+                        if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
+                            orderItem.setStatus(OrderStatusEnum.CANCELLED.getValue());
+                            orderItemMapper.update(orderItem);
+                        }
+                    });
+        }, 15, TimeUnit.MINUTES);
     }
 
     public void cancelScheduledTask() {
@@ -231,9 +217,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             updateById(order);
             cartMapper.deleteBatchByIds(CollStreamUtil.toList(cartList, Cart::getCartId));
             orderItemMapper.insertBatch(orderItems);
-            for (OrderItem orderItem : orderItems) {
-                scheduleOrderCancel(orderItem);
-            }
+            scheduleOrderCancel(order);
             return true;
         });
         return order.getOrderId();

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data(staticConstructor = "create")
 @Accessors(chain = true)
-public class OrderDetailVO {
+public class OrderItemDetailVO {
     @Schema(description = "主键")
     private Integer id;
     @Schema(description = "订单号")
@@ -52,6 +52,7 @@ public class OrderDetailVO {
     @Schema(description = "订单项状态(0-待付款 1-待发货 2-待收货 3-待评价 4-已完成 5-已取消)")
     private Integer status;
     @Schema(description = "付款截止时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime payLatestTime;
     @Schema(description = "倒计时--剩余的秒数 -1 表示已经超时，正数表示倒计时未结束")
     private Integer countdown = -1;

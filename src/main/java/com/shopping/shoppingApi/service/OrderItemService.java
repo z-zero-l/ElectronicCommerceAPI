@@ -2,6 +2,7 @@ package com.shopping.shoppingApi.service;
 
 import com.mybatisflex.core.service.IService;
 import com.shopping.shoppingApi.entity.OrderItem;
+import com.shopping.shoppingApi.vo.OrderItemDetailVO;
 
 /**
  * 订单详情 服务层。
@@ -11,4 +12,12 @@ import com.shopping.shoppingApi.entity.OrderItem;
  */
 public interface OrderItemService extends IService<OrderItem> {
 
+    /**
+     * 获取订单项详情
+     *
+     * @param userId      用户ID
+     * @param orderItemId 订单项ID
+     * @return 订单详情
+     */
+    OrderItemDetailVO getOrderItemDetail(Integer userId, Integer orderItemId);
 }
