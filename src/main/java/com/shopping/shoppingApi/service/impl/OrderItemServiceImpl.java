@@ -3,6 +3,7 @@ package com.shopping.shoppingApi.service.impl;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.shopping.shoppingApi.common.enums.OrderStatusEnum;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.Business;
 import com.shopping.shoppingApi.entity.Order;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import static com.shopping.shoppingApi.entity.table.OrderItemTableDef.ORDER_ITEM;
 import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
 
 /**
@@ -45,7 +47,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
     @Override
     public OrderItemDetailVO getOrderItemDetail(Integer userId, Integer orderItemId) {
         OrderItem orderItem = getById(orderItemId);
-        if (!exists(QueryChain.create().where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)))) {
+        if (!QueryChain.of(orderMapper).where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)).exists()) {
             throw new ServerException("订单不存在");
         }
         Order order = orderMapper.selectOneById(orderItem.getOrderId());
