@@ -1,13 +1,13 @@
 package com.shopping.shoppingApi.service.impl;
 
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.row.Db;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.shopping.shoppingApi.common.enums.OrderItemCloseTypeEnum;
 import com.shopping.shoppingApi.common.enums.OrderStatusEnum;
 import com.shopping.shoppingApi.common.exception.ServerException;
 import com.shopping.shoppingApi.entity.*;
@@ -22,7 +22,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,15 +116,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             throw new ServerException("订单不存在");
         }
         Order order = getOne(queryWrapper);
-        OrderVO orderVO = OrderVO.create();
-        orderVO.setPayLatestTime(order.getCreateTime().plusMinutes(15));
-
-        if (orderVO.getPayLatestTime().isAfter(LocalDateTime.now())) {
-            Duration duration = LocalDateTimeUtil.between(LocalDateTime.now(), orderVO.getPayLatestTime());
-            orderVO.setCountdown(Math.toIntExact(duration.toSeconds()));
-        }
-
-        orderVO.setPayment(order.getPayment());
+        OrderVO orderVO = OrderVO.create()
+                .setPayLatestTime(order.getCreateTime().plusMinutes(15))
+                .setPayment(order.getPayment())
+                .setReceiver(order.getConsignee())
+                .setContact(order.getPhone())
+                .setProvinceCode(order.getProvinceCode())
+                .setCityCode(order.getCityCode())
+                .setDistrictCode(order.getDistrictCode())
+                .setAddress(order.getAddress());
         ArrayList<OrderItemVO> orderItemVOS = new ArrayList<>();
         orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(order.getId())))
                .forEach(orderItem -> {
@@ -149,6 +148,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     .forEach(orderItem -> {
                         if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
                             orderItem.setStatus(OrderStatusEnum.CANCELLED.getValue());
+                            orderItem.setCloseType(OrderItemCloseTypeEnum.TIMEOUT_UNPAID.getValue());
                             orderItemMapper.update(orderItem);
                         }
                     });
@@ -222,4 +222,96 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         });
         return order.getOrderId();
     }
+
+    /**
+     * 模拟支付
+     *
+     * @param userId      用户id
+     * @param orderId     订单id
+     * @param orderItemId 订单项id
+     */
+    @Override
+    public Void pay(Integer userId, String orderId, Integer orderItemId) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        if (orderId != null && orderItemId == null) {
+            if (!exists(QueryChain.create().where(ORDER.ORDER_ID.eq(orderId)).where(ORDER.USER_ID.eq(userId)))) {
+                throw new ServerException("订单不存在");
+            }
+            orderItems = orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(orderId)));
+        }
+        if (orderId == null && orderItemId != null) {
+            OrderItem orderItem = orderItemMapper.selectOneById(orderItemId);
+            if (!exists(QueryChain.create().where(ORDER_ITEM.ID.eq(orderItemId)).where(ORDER.USER_ID.eq(userId)))) {
+                throw new ServerException("订单不存在");
+            }
+            orderItems.add(orderItem);
+        }
+        if (orderId == null && orderItemId == null) {
+            throw new ServerException("订单不存在");
+        }
+        orderItems.forEach(orderItem -> {
+            if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
+                orderItem.setStatus(OrderStatusEnum.WAITING_FOR_DELIVERY.getValue());
+                orderItem.setPayTime(LocalDateTime.now());
+            }
+        });
+        List<OrderItem> finalOrderItems = orderItems;
+        Db.tx(() -> {
+            finalOrderItems.forEach(orderItem -> {
+                orderItemMapper.update(orderItem);
+            });
+            return true;
+        });
+        return null;
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param userId       用户id
+     * @param orderId      订单id
+     * @param orderItemId  订单项id
+     * @param cancelReason 取消原因
+     */
+    @Override
+    public Void cancel(Integer userId, String orderId, Integer orderItemId, String cancelReason) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        if (orderId != null && orderItemId == null) {
+            if (!exists(QueryChain.create().where(ORDER.ORDER_ID.eq(orderId)).where(ORDER.USER_ID.eq(userId)))) {
+                throw new ServerException("订单不存在");
+            }
+            orderItems = orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(orderId)));
+        }
+        if (orderId == null && orderItemId != null) {
+            OrderItem orderItem = orderItemMapper.selectOneById(orderItemId);
+            if (!exists(QueryChain.create().where(ORDER_ITEM.ID.eq(orderItemId)).where(ORDER.USER_ID.eq(userId)))) {
+                throw new ServerException("订单不存在");
+            }
+            orderItems.add(orderItem);
+        }
+        if (orderId == null && orderItemId == null) {
+            throw new ServerException("订单不存在");
+        }
+        orderItems.forEach(orderItem -> {
+            if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
+                orderItem.setStatus(OrderStatusEnum.CANCELLED.getValue());
+                orderItem.setCancelReason(cancelReason);
+                orderItem.setCancelTime(LocalDateTime.now());
+                orderItem.setCloseType(OrderItemCloseTypeEnum.BUYER_CANCEL.getValue());
+            } else {
+                throw new ServerException("订单状态不合法");
+            }
+        });
+        List<OrderItem> finalOrderItems = orderItems;
+        Db.tx(() -> {
+            finalOrderItems.forEach(orderItem -> {
+                orderItemMapper.update(orderItem);
+            });
+            return true;
+        });
+        return null;
+    }
+
+
+
 }

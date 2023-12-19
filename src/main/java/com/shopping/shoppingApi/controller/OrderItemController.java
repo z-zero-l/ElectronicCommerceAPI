@@ -30,7 +30,7 @@ public class OrderItemController {
     private OrderItemService orderItemService;
 
     @Resource
-    private HttpServletRequest  request;
+    private HttpServletRequest request;
 
     /**
      * 获取订单项详情

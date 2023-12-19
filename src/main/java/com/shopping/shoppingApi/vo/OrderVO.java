@@ -17,6 +17,18 @@ public class OrderVO {
     private LocalDateTime payLatestTime;
     @Schema(description = "倒计时--剩余的秒数 -1 表示已经超时，正数表示倒计时未结束")
     private Integer countdown = -1;
+    @Schema(description = "收件人")
+    private String receiver;
+    @Schema(description = "联系方式")
+    private String contact;
+    @Schema(description = "省份编码")
+    private Integer provinceCode;
+    @Schema(description = "城市编码")
+    private Integer cityCode;
+    @Schema(description = "区县编码")
+    private Integer districtCode;
+    @Schema(description = "详细地址")
+    private String address;
     @Schema(description = "订单项列表")
     List<OrderItemVO> orderItemVOList;
     @Schema(description = "实付金额")

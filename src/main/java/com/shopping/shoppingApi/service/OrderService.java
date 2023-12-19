@@ -43,4 +43,23 @@ public interface OrderService extends IService<Order> {
      * @return 订单id
      */
     String submitOrder(Integer userId, Integer addressId, List<OrderQuery> orderQueryList);
+
+    /**
+     * 模拟支付
+     *
+     * @param userId      用户id
+     * @param orderId     订单id
+     * @param orderItemId 订单项id
+     */
+    Void pay(Integer userId, String orderId, Integer orderItemId);
+
+    /**
+     * 取消订单
+     *
+     * @param userId      用户id
+     * @param orderId     订单id
+     * @param orderItemId 订单项id
+     * @param cancelReason 取消原因
+     */
+    Void cancel(Integer userId, String orderId, Integer orderItemId, String cancelReason);
 }

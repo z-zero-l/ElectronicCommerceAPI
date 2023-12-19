@@ -64,4 +64,29 @@ public class OrderController {
     public ResponseEntity<Result<String>> submitOrder(@Parameter Integer addressId, @RequestBody List<OrderQuery> orderQueryList) {
         return Result.ok(orderService.submitOrder(getUserId(request), addressId, orderQueryList)).responseEntity();
     }
+
+    /**
+     * 模拟支付
+     *
+     * @param orderId     订单id
+     * @param orderItemId 订单项id
+     */
+    @PostMapping("pay")
+    @Operation(description = "模拟支付", summary = "模拟支付")
+    public ResponseEntity<Result<Void>> pay(@Parameter String orderId, @Parameter Integer orderItemId) {
+        return Result.ok(orderService.pay(getUserId(request), orderId, orderItemId)).responseEntity();
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param orderId     订单id
+     * @param orderItemId 订单项id
+     * @param cancelReason 取消原因
+     */
+    @PostMapping("cancel")
+    @Operation(description = "取消订单", summary = "取消订单")
+    public ResponseEntity<Result<Void>> cancel(@Parameter String orderId, @Parameter Integer orderItemId, @Parameter String cancelReason) {
+        return Result.ok(orderService.cancel(getUserId(request), orderId, orderItemId, cancelReason)).responseEntity();
+    }
 }
