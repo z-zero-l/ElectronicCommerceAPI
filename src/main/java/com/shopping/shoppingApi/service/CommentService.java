@@ -24,12 +24,4 @@ public interface CommentService extends IService<Comment> {
      * @return 评论列表
      */
     List<CommentVO> getCommentList(Integer productId);
-
-    /**
-     * 添加评论
-     *
-     * @param userId 用户id
-     * @param commentQuery 评论信息
-     */
-    Void addComment(Integer userId, CommentQuery commentQuery);
 }

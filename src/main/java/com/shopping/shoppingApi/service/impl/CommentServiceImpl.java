@@ -69,26 +69,4 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 });
         return commentVOS;
     }
-
-    /**
-     * 添加评论
-     *
-     * @param userId       用户id
-     * @param commentQuery 评论信息
-     */
-    @Override
-    public Void addComment(Integer userId, CommentQuery commentQuery) {
-        if (commentQuery.getToCommentId() == null) {
-            commentQuery.setToCommentId(0);
-        }
-        Comment comment = Comment.create()
-                .setUserId(userId)
-                .setProductId(commentQuery.getProductId())
-                .setCommentContent(commentQuery.getCommentContent())
-                .setToCommentId(commentQuery.getToCommentId());
-        if (!save(comment)) {
-            throw new ServerException("添加评论失败");
-        }
-        return null;
-    }
 }

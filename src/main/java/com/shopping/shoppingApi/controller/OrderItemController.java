@@ -1,6 +1,7 @@
 package com.shopping.shoppingApi.controller;
 
 import com.shopping.shoppingApi.common.result.Result;
+import com.shopping.shoppingApi.query.CommentQuery;
 import com.shopping.shoppingApi.service.OrderItemService;
 import com.shopping.shoppingApi.vo.OrderItemDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +11,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.shopping.shoppingApi.common.utils.ObtainUserIdUtils.getUserId;
 
@@ -79,5 +77,15 @@ public class OrderItemController {
     public ResponseEntity<Result<Void>> delete(@Parameter(required = true) Integer orderItemId) {
         return Result.ok(orderItemService.deleteOrder(getUserId(request),orderItemId)).responseEntity();
     }
-    
+
+    /**
+     * 添加评价
+     *
+     * @param commentQuery 评价信息
+     */
+    @PostMapping("/addComment")
+    @Operation(summary = "添加评价", description = "添加评价")
+    public ResponseEntity<Result<Void>> addComment(@RequestBody CommentQuery commentQuery) {
+        return Result.ok(orderItemService.addComment(getUserId(request), commentQuery)).responseEntity();
+    }
 }

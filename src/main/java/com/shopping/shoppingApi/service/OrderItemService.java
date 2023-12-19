@@ -2,6 +2,7 @@ package com.shopping.shoppingApi.service;
 
 import com.mybatisflex.core.service.IService;
 import com.shopping.shoppingApi.entity.OrderItem;
+import com.shopping.shoppingApi.query.CommentQuery;
 import com.shopping.shoppingApi.vo.OrderItemDetailVO;
 
 /**
@@ -44,4 +45,12 @@ public interface OrderItemService extends IService<OrderItem> {
      * @param orderItemId 订单项ID
      */
     Void deleteOrder(Integer userId, Integer orderItemId);
+
+    /**
+     * 添加评价
+     *
+     * @param userId       用户id
+     * @param commentQuery 评价信息
+     */
+    Void addComment(Integer userId, CommentQuery commentQuery);
 }

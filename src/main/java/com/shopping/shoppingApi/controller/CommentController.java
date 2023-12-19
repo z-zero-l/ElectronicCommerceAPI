@@ -45,15 +45,4 @@ public class CommentController {
     public ResponseEntity<Result<List<CommentVO>>> list(@Parameter(description = "商品id") Integer productId) {
         return Result.ok(commentService.getCommentList(productId)).responseEntity();
     }
-
-    /**
-     * 添加评论
-     *
-     * @param commentQuery 评论信息
-     */
-    @PostMapping("/add")
-    @Operation(summary = "添加评论", description = "添加评论")
-    public ResponseEntity<Result<Void>> add(@RequestBody CommentQuery commentQuery) {
-        return Result.ok(commentService.addComment(getUserId(request), commentQuery)).responseEntity();
-    }
 }

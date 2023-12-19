@@ -5,14 +5,9 @@ import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.shopping.shoppingApi.common.enums.OrderStatusEnum;
 import com.shopping.shoppingApi.common.exception.ServerException;
-import com.shopping.shoppingApi.entity.Business;
-import com.shopping.shoppingApi.entity.Order;
-import com.shopping.shoppingApi.entity.OrderItem;
-import com.shopping.shoppingApi.entity.Product;
-import com.shopping.shoppingApi.mapper.BusinessMapper;
-import com.shopping.shoppingApi.mapper.OrderItemMapper;
-import com.shopping.shoppingApi.mapper.OrderMapper;
-import com.shopping.shoppingApi.mapper.ProductMapper;
+import com.shopping.shoppingApi.entity.*;
+import com.shopping.shoppingApi.mapper.*;
+import com.shopping.shoppingApi.query.CommentQuery;
 import com.shopping.shoppingApi.service.OrderItemService;
 import com.shopping.shoppingApi.vo.OrderItemDetailVO;
 import lombok.AllArgsConstructor;
@@ -21,8 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static com.mybatisflex.core.row.Db.deleteById;
-import static com.shopping.shoppingApi.entity.table.OrderItemTableDef.ORDER_ITEM;
 import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
 
 /**
@@ -37,6 +30,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
     private OrderMapper orderMapper;
     private ProductMapper productMapper;
     private BusinessMapper businessMapper;
+    private CommentMapper commentMapper;
 
     /**
      * 获取订单项详情
@@ -112,7 +106,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
         }
         if (!orderItem.getStatus().equals(OrderStatusEnum.WAITING_FOR_SHIPMENT.getValue())) {
             throw new ServerException("订单状态不正确");
-        }else {
+        } else {
             orderItem.setStatus(OrderStatusEnum.WAITING_FOR_DELIVERY.getValue());
             orderItem.setSendTime(LocalDateTime.now());
             updateById(orderItem);
@@ -134,7 +128,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
         }
         if (!orderItem.getStatus().equals(OrderStatusEnum.WAITING_FOR_DELIVERY.getValue())) {
             throw new ServerException("订单状态不正确");
-        }else {
+        } else {
             orderItem.setStatus(OrderStatusEnum.WAITING_FOR_REVIEW.getValue());
             orderItem.setReceiptTime(LocalDateTime.now());
             updateById(orderItem);
@@ -154,10 +148,37 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
         if (!QueryChain.of(orderMapper).where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)).exists()) {
             throw new ServerException("订单不存在");
         }
-        if (!orderItem.getStatus().equals(OrderStatusEnum.COMPLETED.getValue())||!orderItem.getStatus().equals(OrderStatusEnum.CANCELLED.getValue())) {
+        if (!orderItem.getStatus().equals(OrderStatusEnum.COMPLETED.getValue()) || !orderItem.getStatus().equals(OrderStatusEnum.CANCELLED.getValue())) {
             throw new ServerException("订单状态不正确");
-        }else {
+        } else {
             removeById(orderItem);
+        }
+        return null;
+    }
+
+    /**
+     * 添加评价
+     *
+     * @param userId       用户id
+     * @param commentQuery 评价信息
+     */
+    @Override
+    public Void addComment(Integer userId, CommentQuery commentQuery) {
+        OrderItem orderItem = getById(commentQuery.getOrderItemId());
+        if (!QueryChain.of(orderMapper).where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)).exists()) {
+            throw new ServerException("订单不存在");
+        }
+        if (!orderItem.getStatus().equals(OrderStatusEnum.WAITING_FOR_REVIEW.getValue())) {
+            throw new ServerException("订单状态不正确");
+        } else {
+            orderItem.setStatus(OrderStatusEnum.COMPLETED.getValue());
+            orderItem.setFinishTime(LocalDateTime.now());
+            updateById(orderItem);
+            Comment comment = Comment.create()
+                    .setUserId(userId)
+                    .setProductId(orderItem.getProductId())
+                    .setCommentContent(commentQuery.getCommentContent());
+            commentMapper.insert(comment);
         }
         return null;
     }
