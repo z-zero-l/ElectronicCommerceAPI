@@ -96,7 +96,8 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
             collects = list(QueryChain.create()
                     .join(PRODUCT).on(PRODUCT.PRODUCT_ID.eq(COLLECT.PRODUCT_ID))
                     .where(COLLECT.USER_ID.eq(userId))
-                    .where(PRODUCT.CATE_SEC_ID.eq(categoryId)));
+                    .where(PRODUCT.CATE_SEC_ID.eq(categoryId))
+                    .orderBy(PRODUCT.CREATE_TIME.desc()));
         } else {
             collects = list(QueryChain.create().eq("user_id", userId));
         }

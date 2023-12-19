@@ -49,7 +49,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             throw new ServerException("用户不存在");
         }
         ArrayList<CartVO> cartVOS = new ArrayList<>();
-        QueryWrapper queryWrapper = QueryChain.create().eq("user_id", userId);
+        QueryWrapper queryWrapper = QueryChain.create().eq("user_id", userId).orderBy(CART.CREATE_TIME.desc());
         if (selected != null && selected == 1) {
             queryWrapper.eq("selected", selected);
         }
