@@ -127,16 +127,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 .setAddress(order.getAddress());
         ArrayList<OrderItemVO> orderItemVOS = new ArrayList<>();
         orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(order.getId())))
-               .forEach(orderItem -> {
-                   orderItemVOS.add(OrderItemVO.create()
-                          .setProductName(orderItem.getProductName())
-                          .setSpecName(orderItem.getSpecName())
-                          .setSpecImage(orderItem.getProductImage())
-                          .setAmount(orderItem.getAmount())
-                          .setPrice(orderItem.getPrice())
-                           .setFreight(orderItem.getFreight())
-                           .setRemark(orderItem.getRemark()));
-               });
+                .forEach(orderItem -> {
+                    orderItemVOS.add(OrderItemVO.create()
+                            .setProductName(orderItem.getProductName())
+                            .setSpecName(orderItem.getSpecName())
+                            .setSpecImage(orderItem.getProductImage())
+                            .setAmount(orderItem.getAmount())
+                            .setPrice(orderItem.getPrice())
+                            .setFreight(orderItem.getFreight())
+                            .setRemark(orderItem.getRemark()));
+                });
         orderVO.setOrderItemVOList(orderItemVOS);
         return orderVO;
     }
@@ -234,10 +234,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public Void pay(Integer userId, String orderId, Integer orderItemId) {
         List<OrderItem> orderItems = new ArrayList<>();
         if (orderId != null && orderItemId == null) {
-            if (!exists(QueryChain.create().where(ORDER.ORDER_ID.eq(orderId)).where(ORDER.USER_ID.eq(userId)))) {
+            QueryWrapper queryWrapper = QueryChain.create().where(ORDER.ORDER_ID.eq(orderId)).where(ORDER.USER_ID.eq(userId));
+            if (!exists(queryWrapper)) {
                 throw new ServerException("订单不存在");
             }
-            orderItems = orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(orderId)));
+            orderItems = orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(getOne(queryWrapper).getId())));
         }
         if (orderId == null && orderItemId != null) {
             OrderItem orderItem = orderItemMapper.selectOneById(orderItemId);
@@ -251,15 +252,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         orderItems.forEach(orderItem -> {
             if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
-                orderItem.setStatus(OrderStatusEnum.WAITING_FOR_DELIVERY.getValue());
+                orderItem.setStatus(OrderStatusEnum.WAITING_FOR_SHIPMENT.getValue());
                 orderItem.setPayTime(LocalDateTime.now());
             }
         });
         List<OrderItem> finalOrderItems = orderItems;
         Db.tx(() -> {
-            finalOrderItems.forEach(orderItem -> {
-                orderItemMapper.update(orderItem);
-            });
+            finalOrderItems.forEach(orderItem -> orderItemMapper.update(orderItem));
             return true;
         });
         return null;
@@ -277,10 +276,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public Void cancel(Integer userId, String orderId, Integer orderItemId, String cancelReason) {
         List<OrderItem> orderItems = new ArrayList<>();
         if (orderId != null && orderItemId == null) {
-            if (!exists(QueryChain.create().where(ORDER.ORDER_ID.eq(orderId)).where(ORDER.USER_ID.eq(userId)))) {
+            QueryWrapper queryWrapper = QueryChain.create().where(ORDER.ORDER_ID.eq(orderId)).where(ORDER.USER_ID.eq(userId));
+            if (!exists(queryWrapper)) {
                 throw new ServerException("订单不存在");
             }
-            orderItems = orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(orderId)));
+            orderItems = orderItemMapper.selectListByQuery(QueryChain.create().where(ORDER_ITEM.ORDER_ID.eq(getOne(queryWrapper).getId())));
         }
         if (orderId == null && orderItemId != null) {
             OrderItem orderItem = orderItemMapper.selectOneById(orderItemId);
@@ -304,14 +304,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         });
         List<OrderItem> finalOrderItems = orderItems;
         Db.tx(() -> {
-            finalOrderItems.forEach(orderItem -> {
-                orderItemMapper.update(orderItem);
-            });
+            finalOrderItems.forEach(orderItem -> orderItemMapper.update(orderItem));
             return true;
         });
         return null;
     }
-
 
 
 }
