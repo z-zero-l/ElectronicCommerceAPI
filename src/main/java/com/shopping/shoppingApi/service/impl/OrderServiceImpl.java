@@ -36,6 +36,7 @@ import static com.shopping.shoppingApi.entity.table.AddressTableDef.ADDRESS;
 import static com.shopping.shoppingApi.entity.table.CartTableDef.CART;
 import static com.shopping.shoppingApi.entity.table.OrderItemTableDef.ORDER_ITEM;
 import static com.shopping.shoppingApi.entity.table.OrderTableDef.ORDER;
+import static com.shopping.shoppingApi.entity.table.ProductSpecTableDef.PRODUCT_SPEC;
 
 /**
  * 订单 服务层实现。
@@ -210,6 +211,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     .setPrice(price)
                     .setRemark(orderRemarkMap.get(cart.getCartId()))
                     .setStatus(OrderStatusEnum.WAITING_FOR_PAYMENT.getValue()));
+            productSpec.setStock(productSpec.getStock() - cart.getQuantity());
+            productSpecMapper.update(productSpec);
             payment = payment.add(price).add(BigDecimal.valueOf(product.getFreight()));
         }
         order.setPayment(payment);
@@ -293,6 +296,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             throw new ServerException("订单不存在");
         }
         orderItems.forEach(orderItem -> {
+            ProductSpec productSpec = productSpecMapper.selectOneByQuery(QueryChain.create().where(PRODUCT_SPEC.PRODUCT_ID.eq(orderItem.getProductId())).where(PRODUCT_SPEC.SPEC_NAME.eq(orderItem.getSpecName())));
+            productSpec.setStock(productSpec.getStock() + orderItem.getAmount());
+            productSpecMapper.update(productSpec);
             if (Objects.equals(orderItem.getStatus(), OrderStatusEnum.WAITING_FOR_PAYMENT.getValue())) {
                 orderItem.setStatus(OrderStatusEnum.CANCELLED.getValue());
                 orderItem.setCancelReason(cancelReason);
