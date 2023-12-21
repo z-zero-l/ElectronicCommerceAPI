@@ -23,9 +23,9 @@ import static com.shopping.shoppingApi.entity.table.CarouselTableDef.CAROUSEL;
 public class CarouselServiceImpl extends ServiceImpl<CarouselMapper, Carousel> implements CarouselService {
 
     /**
-     * 获取轮播图列表
+     * 获取首页轮播图列表
      *
-     * @return 轮播图列表
+     * @return 首页轮播图列表
      */
     @Override
     public List<CarouselVO> getCarouselList() {
