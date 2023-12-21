@@ -78,6 +78,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
                 .setCancelReason(orderItem.getCancelReason())
                 .setStatus(orderItem.getStatus())
                 .setCreateTime(orderItem.getCreateTime())
+                .setCancelTime(orderItem.getCancelTime())
                 .setPayTime(orderItem.getPayTime())
                 .setSendTime(orderItem.getSendTime())
                 .setReceiptTime(orderItem.getReceiptTime())
@@ -148,7 +149,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
         if (!QueryChain.of(orderMapper).where(ORDER.ID.eq(orderItem.getOrderId())).and(ORDER.USER_ID.eq(userId)).exists()) {
             throw new ServerException("订单不存在");
         }
-        if (!orderItem.getStatus().equals(OrderStatusEnum.COMPLETED.getValue()) || !orderItem.getStatus().equals(OrderStatusEnum.CANCELLED.getValue())) {
+        if (!orderItem.getStatus().equals(OrderStatusEnum.COMPLETED.getValue()) && !orderItem.getStatus().equals(OrderStatusEnum.CANCELLED.getValue())) {
             throw new ServerException("订单状态不正确");
         } else {
             removeById(orderItem);
@@ -177,6 +178,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
             Comment comment = Comment.create()
                     .setUserId(userId)
                     .setProductId(orderItem.getProductId())
+                    .setToCommentId(0)
                     .setCommentContent(commentQuery.getCommentContent());
             commentMapper.insert(comment);
         }

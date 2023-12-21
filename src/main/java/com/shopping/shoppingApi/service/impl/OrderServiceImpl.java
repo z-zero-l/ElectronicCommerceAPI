@@ -242,7 +242,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         if (orderId == null && orderItemId != null) {
             OrderItem orderItem = orderItemMapper.selectOneById(orderItemId);
-            if (!exists(QueryChain.create().where(ORDER_ITEM.ID.eq(orderItemId)).where(ORDER.USER_ID.eq(userId)))) {
+            if (!exists(QueryChain.create().where(ORDER.ID.eq(orderItem.getOrderId())).where(ORDER.USER_ID.eq(userId)))) {
                 throw new ServerException("订单不存在");
             }
             orderItems.add(orderItem);
@@ -284,7 +284,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         if (orderId == null && orderItemId != null) {
             OrderItem orderItem = orderItemMapper.selectOneById(orderItemId);
-            if (!exists(QueryChain.create().where(ORDER_ITEM.ID.eq(orderItemId)).where(ORDER.USER_ID.eq(userId)))) {
+            if (!exists(QueryChain.create().where(ORDER.ID.eq(orderItem.getOrderId())).where(ORDER.USER_ID.eq(userId)))) {
                 throw new ServerException("订单不存在");
             }
             orderItems.add(orderItem);

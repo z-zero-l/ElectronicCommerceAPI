@@ -59,6 +59,8 @@ public class OrderItemDetailVO {
     @Schema(description = "下单时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
+    @Schema(description = "关闭时间")
+    private LocalDateTime cancelTime;
     @Schema(description = "付款时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime payTime;
