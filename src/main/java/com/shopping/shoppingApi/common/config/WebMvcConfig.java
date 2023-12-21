@@ -10,10 +10,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableCaching
 public class WebMvcConfig implements WebMvcConfigurer {
+    /**
+     * 创建一个AuthorizationInterceptor的bean
+     * @return 返回AuthorizationInterceptor的实例
+     */
     @Bean
     public AuthorizationInterceptor getAuthorizationInterceptor() {
         return new AuthorizationInterceptor();
     }
+
 
 
     //    将需要登录拦截器配置到容器中，并配置不被拦截的路径
