@@ -22,6 +22,13 @@ public class RedisServiceImpl implements RedisService {
 
     private final RedisTemplate redisTemplate;
 
+    /**
+     * 设置键值对。
+     *
+     * @param key   键
+     * @param value 值
+     * @return 是否设置成功
+     */
     @Override
     public boolean set(String key, Object value) {
         boolean result = false;
@@ -36,11 +43,12 @@ public class RedisServiceImpl implements RedisService {
         return result;
     }
 
+
     @Override
     public boolean set(String key, Object value, Long expireTime) {
         boolean result = false;
         try {
-            // 创建对简单值(Redis术语中的string类型)执行操作的对象
+            // 创建对简单值（Redis术语中的string类型）执行操作的对象
             ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
             operations.set(key, value);
             redisTemplate.expire(key, expireTime, TimeUnit.MINUTES);
@@ -50,6 +58,7 @@ public class RedisServiceImpl implements RedisService {
         }
         return result;
     }
+
 
     @Override
     public boolean existsKey(String key) {
